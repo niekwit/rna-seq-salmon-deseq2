@@ -1,0 +1,25 @@
+genome: human # human or mouse
+encode_genome_build: "44"
+fdr_cutoff: 0.05 # adj p value cut off for volcano plots
+fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
+salmon: 
+  extra_params: "" # additional arguments to pass to Salmon
+resources: # computing resources
+  account: XXX 
+  partition: cclake
+  max_jobs: 300
+  trim:
+    cpu: 8
+    time: 60
+  fastqc:
+    cpu: 4
+    time: 60
+  mapping:
+    cpu: 8
+    time: 120
+  deseq2:
+    cpu: 6
+    time: 60 
+  plotting:
+    cpu: 2
+    time: 20
