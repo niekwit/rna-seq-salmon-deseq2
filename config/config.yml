@@ -2,8 +2,10 @@ genome: human # human or mouse
 encode_genome_build: "44"
 fdr_cutoff: 0.05 # adj p value cut off for volcano plots
 fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
-salmon: 
+salmon-quant: 
   extra_params: "" # additional arguments to pass to Salmon
+salmon-index:
+  extra_params: "--gencode"
 resources: # computing resources
   account: XXX 
   partition: cclake
