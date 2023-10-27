@@ -1,4 +1,53 @@
-# Main entrypoint of the workflow. 
-# Please follow the best practices: 
-# https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
-# in particular regarding the standardized folder structure mentioned there. 
+import os
+from scripts.resources import Resources
+from scripts import general_functions as gf
+from snakemake.utils import min_version
+
+report: "report/workflow.rst"
+
+# set minimum snakemake version
+min_version("6.4.1")
+
+# load config file
+configfile: "config/config.yml"
+
+# load gneome resources to be used in rules
+resources = Resources(config["genome"], config["gencode_genome_build"])
+
+# get sample names
+SAMPLES = gf.import_samples()
+
+# import rules
+include: "rules/fastqc.smk"
+include: "rules/trimming.smk"
+include: "rules/resources.smk"
+include: "rules/mapping.smk"
+include: "rules/deseq2.smk"
+include: "rules/plotting.smk"
+
+# target rule
+rule all:
+    input: 
+        "results/plots/mapping_rates.pdf",
+        "results/plots/pca.pdf",
+        "results/plots/sample_distance.pdf",
+        "results/plots/volcano/",
+
+
+# save snakemake terminal output to log file
+snake_log = "logs/snakemake/snakemake.log"
+os.makedirs("logs/snakemake", exist_ok=True)
+
+onsuccess: 
+    shell("cp -v {log} {snake_log}")
+
+    # compress genome files
+    shell(f"pigz {resources.gencode_fasta} {resources.gencode_trx_fasta} {resources.gencode_gtf}")
+    
+    print("Analysis finished successfully!")
+
+onerror:
+    shell("cp -v {log} {snake_log}")
+    print(f"Analysis (partly) failed...\nCheck {snake_log} for details")
+
+
