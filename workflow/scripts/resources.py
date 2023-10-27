@@ -37,9 +37,9 @@ class Resources:
             self.gencode_gtf_sha256 = "43f54fea7b0ea8030851a669f92c7104f3869572543b27781b2f61cc469f3da0"
             
         # downloaded unzipped file names
-        self.gencode_fasta = self.file_from_url(self.gencode_fa_url)
-        self.gencode_trx_fasta = self.file_from_url(self.gencode_trx_fa_url)
-        self.gencode_gtf = self.file_from_url(self.gencode_gtf_url)
+        self.gencode_fasta = self._file_from_url(self.gencode_fa_url)
+        self.gencode_trx_fasta = self._file_from_url(self.gencode_trx_fa_url)
+        self.gencode_gtf = self._file_from_url(self.gencode_gtf_url)
         
     def _file_from_url(self, url):
         """Returns file path for unzipped downloaded file
