@@ -16,7 +16,7 @@ names(df) <- c("sample","mapping.rate")
 counter <- 1
 for (x in files) {
     # get sample name from log
-    sample <- system(paste0("echo ", x, " | sed 's$logs/salmon/$$' | sed 's/.log//'"), intern=TRUE)
+    sample <- system(paste0("echo ", x, " | sed 's$logs/salmon/quant-$$;s/.log//'"), intern=TRUE)
     
     # get mapping rate from log
     rate <- system(paste0('grep "Mapping rate = " ', x, " | awk -F ' ' '{print $NF}' | sed 's/%//'"), intern=TRUE)
