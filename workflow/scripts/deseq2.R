@@ -10,6 +10,7 @@ library(tximport)
 library(dplyr)
 library(biomaRt)
 library(readr)
+library(openxlsx)
 
 # load snakemake variables
 files <- snakemake@input[["salmon"]]
@@ -22,7 +23,7 @@ genotypes <- unique(samples$genotype)
 treatments <- unique(samples$treatment)
 
 if (length(treatments) > 1){
-  samples$comb <- paste0(samples$genotype,"_",samples$treatments)
+  samples$comb <- paste0(samples$genotype,"_",samples$treatment)
 } else {
   samples$comb <- paste0(samples$genotype)
 }
@@ -54,7 +55,7 @@ if (genome == "human") {
   mart <- useDataset("hsapiens_gene_ensembl", mart = mart)
 } else if (genome == "mouse"){
   mart <- useDataset("mmusculus_gene_ensembl", mart = mart)
-} # add other genomes later!!!
+} 
 
 # load reference samples
 references <- unique(samples[samples$reference == "yes" ,]$comb)
@@ -158,20 +159,22 @@ flattenlist <- function(x) {
   }
 }
 
-# write all data frames in df.list to sheets in Excel file
-library(openxlsx)
-
 # flatten df.list
 df.list <- flattenlist(df.list)
 
 # get contrast names from each df in list
 names <- lapply(df.list, function(x) unique(x$contrast_name))
 
+# check if any df name is longer than 31 characters (not supported by openxlsx)
+if (any(nchar(names) > 31)){
+  # change names to numbers
+  names <- seq(length(names))
+}
+
 # name data frames in list
 names(df.list) <- names
 
 # write to one file
-print(paste0("Saving results to ",snakemake@output[["xlsx"]]," ..."))
 write.xlsx(df.list, 
            snakemake@output[["xlsx"]],
            colNames = TRUE)
@@ -179,5 +182,4 @@ write.xlsx(df.list,
 # close log file
 sink(log, type = "output")
 sink(log, type = "message")
-
 
