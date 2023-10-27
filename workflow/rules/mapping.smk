@@ -3,7 +3,7 @@ rule salmon_decoy:
         transcriptome=resources.gencode_trx_fasta,
         genome=resources.gencode_fasta,
     output:
-        gentrome="resources/gentrome.fasta",
+        gentrome=temp("resources/gentrome.fasta"),
         decoys="resources/decoys.txt",
     threads: config["resources"]["mapping"]["cpu"]
     log:

@@ -1,9 +1,9 @@
 rule deseq2:
     input:
-        salmon=expand("results/te_count/{sample}.cntTable", sample=SAMPLES),
+        salmon=expand("results/salmon/{sample}/quant.sf", sample=SAMPLES),
         gtf=resources.gencode_gtf,
     output:
-        xlsx="results/deseq2/deseq2.xlsx",
+        xlsx=report("results/deseq2/deseq2.xlsx", caption="report/deseq2.rst", category="Differential Expression Analysis"),
         rdata="results/deseq2/dds.RData"
     params:
         genome=resources.genome,        

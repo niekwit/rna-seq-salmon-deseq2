@@ -7,7 +7,7 @@ rule get_genome_fasta:
     log:
         "logs/resources/get_gencode_fasta.log"
     conda:
-        "../envs/mapping.yml"
+        "../envs/resources.yml"
     shell:
         "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
 
@@ -17,11 +17,11 @@ rule get_transcriptome_fasta:
         ensure(resources.gencode_trx_fasta, sha256=resources.gencode_trx_fa_sha256)
     retries: 3
     params:
-        url=gencode_trx_fa_url,
+        url=resources.gencode_trx_fa_url,
     log:
         "logs/resources/get_transcriptome_fasta.log"
     conda:
-        "../envs/mapping.yml"
+        "../envs/resources.yml"
     shell:
         "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
 
@@ -35,7 +35,7 @@ rule get_gencode_gtf:
     log:
         "logs/resources/get_gencode_gtf.log"
     conda:
-        "../envs/mapping.yml"
+        "../envs/resources.yml"
     shell:
         "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
 

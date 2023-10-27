@@ -1,23 +1,23 @@
 rule mapping_rates_plot:
     input:
-        expand("logs/salmon_quant/{sample}.log", sample=SAMPLES)
+        expand("logs/salmon/quant-{sample}.log", sample=SAMPLES)
     output:
-        "results/plots/mapping_rates.pdf"
+        report("results/plots/mapping_rates.pdf", caption="report/mapping_rates.rst", category="Mapping rates")
     params:
         "salmon",
     conda:
-        "envs/deseq2.yml"
+        "../envs/deseq2.yml"
     log:
         "logs/plots/mapping_rates.log"
     script:
-        "scripts/mapping_rates.R"
+        "../scripts/mapping_rates.R"
 
 
 rule pca_plot:
     input:
         "results/deseq2/dds.RData",
     output:
-        "results/plots/pca.pdf",
+        report("results/plots/pca.pdf", caption="report/pca.rst", category="PCA"),
     conda:
         "../envs/deseq2.yml"
     threads: config["resources"]["plotting"]["cpu"]
@@ -33,7 +33,7 @@ rule heatmap_sample_distance:
     input:
         "results/deseq2/dds.RData",
     output:
-        "results/plots/sample_distance.pdf",
+        report("results/plots/sample_distance.pdf", caption="report/sample_distance.rst", category="Sample distances"),
     conda:
         "../envs/deseq2.yml"
     threads: config["resources"]["plotting"]["cpu"]
@@ -47,11 +47,9 @@ rule heatmap_sample_distance:
 
 rule volcano_plot:
     input:
-        genes="results/deseq2/deseq2_genes.xlsx",
-        te="results/deseq2/deseq2_te.xlsx",
+        xlsx="results/deseq2/deseq2.xlsx",
     output:
-        genes=directory("results/plots/volcano_genes/"),
-        te=directory("results/plots/volcano_te/"),
+        report(directory("results/plots/volcano"), caption="report/volcano.rst", category="Volcano plots"),
     params:
         fdr=config["fdr_cutoff"],
         fc=config["fc_cutoff"]
