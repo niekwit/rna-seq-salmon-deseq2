@@ -7,6 +7,7 @@ library(ggplot2)
 library(readxl)
 library(ggrepel)
 library(dplyr)
+library(cowplot)
 
 # get xlsx file
 xlsx <- snakemake@input[["xlsx"]]
@@ -67,15 +68,11 @@ for (i in excel_sheets(xlsx)){
   p <- ggplot(df, aes(x = `log2FoldChange`,
                   y = `log.padj`)
           ) + 
-    theme_bw() +
-    theme(axis.text=element_text(size = 16),
-          axis.title=element_text(size = 16),
-          plot.title = element_text(hjust = 0.5,
-                                    size = 16),
+    theme_cowplot(16) +
+    theme(plot.title = element_text(hjust = 0.5),
           axis.line = element_line(colour = "black"),
           panel.border = element_blank(),
           panel.background = element_blank(),
-          strip.text.x = element_text(size = 16),
           panel.spacing.x = unit(2, "lines")) +
     geom_point(alpha = 0.5,
                 shape = 21,

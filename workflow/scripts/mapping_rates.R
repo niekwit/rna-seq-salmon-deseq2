@@ -4,6 +4,7 @@ sink(log, type="output")
 sink(log, type="message")
 
 library(ggplot2)
+library(cowplot)
 
 # get snakemake variables
 files <- snakemake@input
@@ -37,7 +38,7 @@ p <- ggplot(df, aes(x=sample, y=mapping.rate)) +
   geom_bar(stat="identity", 
            fill="aquamarine4",
            colour = "black") +
-  theme_bw(base_size = 16) +
+  theme_cowplot(16) +
   scale_y_continuous(limits=c(0,100)) +
   scale_x_discrete(guide=guide_axis(angle = 45)) +
   ylab("Mapping rate (%)") +

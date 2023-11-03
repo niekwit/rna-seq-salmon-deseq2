@@ -7,6 +7,7 @@ library(ggplot2)
 library(DESeq2)
 library(RColorBrewer)
 library(ggrepel)
+library(cowplot)
 
 # read in data
 load(snakemake@input[[1]])
@@ -23,10 +24,9 @@ if (length(unique(rld$treatment)) == 2) {
 
 #create PCA plot
 pca <- plotPCA(rld, intgroup=c("genotype", "treatment")) +
-  geom_label_repel(aes(label = rld$sample)) + 
+  geom_text_repel(aes(label = rld$sample)) + 
   guides(colour = "none") +
-  theme_bw() +
-  theme(text=element_text(size = 16)) +
+  theme_cowplot(16) +
   scale_color_brewer(palette = palette)
 
 # save plot to file
