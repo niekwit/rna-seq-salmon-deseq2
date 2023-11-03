@@ -1,6 +1,6 @@
 import os
 from scripts.resources import Resources
-from scripts import general_functions as gf
+from scripts import general_functions as utils
 from snakemake.utils import min_version
 
 report: "report/workflow.rst"
@@ -15,7 +15,7 @@ configfile: "config/config.yml"
 resources = Resources(config["genome"], config["gencode_genome_build"])
 
 # get sample names
-SAMPLES = gf.import_samples()
+SAMPLES = utils.import_samples()
 
 # import rules
 include: "rules/fastqc.smk"
@@ -43,7 +43,6 @@ onsuccess:
 
     # compress genome files
     shell(f"pigz {resources.gencode_fasta} {resources.gencode_trx_fasta} {resources.gencode_gtf}")
-    
     print("Analysis finished successfully!")
 
 onerror:
