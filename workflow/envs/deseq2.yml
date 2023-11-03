@@ -10,6 +10,7 @@ dependencies:
   - r-pheatmap=1.0.12
   - r-stringr=1.5.0
   - r-ggplot2=3.4.2
+  - r-cowplot=1.1.1
   - r-readr=2.1.4
   - r-readxl=1.4.2
   - r-openxlsx=4.2.5
