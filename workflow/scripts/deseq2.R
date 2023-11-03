@@ -8,6 +8,7 @@ library(DESeq2)
 library(GenomicFeatures)
 library(tximport)
 library(dplyr)
+library(stringr)
 library(biomaRt)
 library(readr)
 library(openxlsx)
@@ -22,7 +23,7 @@ samples <- read.csv("config/samples.csv", header=TRUE)
 genotypes <- unique(samples$genotype)
 treatments <- unique(samples$treatment)
 
-if (length(treatments) > 1){
+if (length(treatments) > 1) {
   samples$comb <- paste0(samples$genotype,"_",samples$treatment)
 } else {
   samples$comb <- paste0(samples$genotype)
@@ -62,7 +63,7 @@ references <- unique(samples[samples$reference == "yes" ,]$comb)
 
 # create nested list to store all pairwise comparisons (top level:references, lower level: samples without reference)
 df.list <- vector(mode="list", length=length(references))
-for (i in seq_along(references)){
+for (i in seq(references)){
   df.list[[i]] <- vector(mode="list", length=(length(unique(samples$comb)) - 1 ))
 }
 
@@ -80,7 +81,6 @@ for (r in seq_along(references)){
   dds_relevel <- DESeq(dds_relevel)
   
   # get comparisons
-  library(stringr)
   comparisons <- resultsNames(dds_relevel)
   comparisons <- strsplit(comparisons," ")
   comparisons[1] <- NULL
@@ -93,7 +93,6 @@ for (r in seq_along(references)){
     print(paste0("Specifiying contrast: ",comparison, " (",c,"/",length(comparisons),")"))
     
     res <- results(dds_relevel, name=comparisons[[c]])
-    
     df <- as.data.frame(res) %>%
       mutate(ensembl_gene_id = res@rownames, .before=1) 
     
@@ -143,9 +142,7 @@ for (r in seq_along(references)){
     
     # save df to df.list
     df.list[[r]][[c]] <- df
-    
   }
-  
 }
 
 # function to flatten nested lists (https://stackoverflow.com/questions/16300344/how-to-flatten-a-list-of-lists/41882883#41882883)
@@ -165,19 +162,29 @@ df.list <- flattenlist(df.list)
 # get contrast names from each df in list
 names <- lapply(df.list, function(x) unique(x$contrast_name))
 
+# name data frames in list
+names(df.list) <- names
+
+# write each df also to separate csv file
+for (i in seq(df.list)){
+  write_csv(df.list[[i]], 
+            paste0("results/deseq2/", names(df.list)[i], ".csv"))
+}
+
 # check if any df name is longer than 31 characters (not supported by openxlsx)
 if (any(nchar(names) > 31)){
   # change names to numbers
   names <- seq(length(names))
+  
+  # rename data frames in list
+  names(df.list) <- names
 }
-
-# name data frames in list
-names(df.list) <- names
 
 # write to one file
 write.xlsx(df.list, 
            snakemake@output[["xlsx"]],
            colNames = TRUE)
+
 
 # close log file
 sink(log, type = "output")
