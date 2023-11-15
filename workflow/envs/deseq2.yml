@@ -21,5 +21,5 @@ dependencies:
   - bioconductor-genomicfeatures=1.50.2
   - bioconductor-tximport=1.26.0
   - r-ggfortify=0.4.16
-  - r-dbplyr 2.3.4
+  - r-dbplyr=2.3.4
   
