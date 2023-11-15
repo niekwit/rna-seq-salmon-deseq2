@@ -7,9 +7,6 @@ salmon-quant:
 salmon-index:
   extra_params: "--gencode"
 resources: # computing resources
-  account: XXX 
-  partition: cclake
-  max_jobs: 300
   trim:
     cpu: 8
     time: 60

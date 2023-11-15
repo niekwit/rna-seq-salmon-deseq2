@@ -1,2 +1,28 @@
-Describe how to configure the workflow (using config.yaml and maybe additional files).
-All of them need to be present with example entries inside of the config folder.
+Provide experimental information in `config.yml``:
+
+```
+genome: human # human or mouse
+gencode_genome_build: "44"
+fdr_cutoff: 0.05 # adj p value cut off for volcano plots
+fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
+salmon-quant: 
+  extra_params: "" # additional arguments to pass to Salmon
+salmon-index:
+  extra_params: "--gencode"
+resources: # computing resources
+  trim:
+    cpu: 8
+    time: 60
+  fastqc:
+    cpu: 4
+    time: 60
+  mapping:
+    cpu: 8
+    time: 120
+  deseq2:
+    cpu: 6
+    time: 60 
+  plotting:
+    cpu: 2
+    time: 20
+```
