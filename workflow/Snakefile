@@ -32,6 +32,7 @@ rule all:
         "results/plots/pca.pdf",
         "results/plots/sample_distance.pdf",
         "results/plots/volcano/",
+        "results/qc/multiqc/multiqc.html",
 
 
 # save snakemake terminal output to log file

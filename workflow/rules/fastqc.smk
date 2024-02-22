@@ -14,15 +14,26 @@ rule fastqc:
 
 
 rule multiqc:
-    input:
-        expand("results/qc/fastqc/{sample}{end}_fastqc.zip", sample=SAMPLES, end=["_R1","_R2"])
-    output:
-        "results/qc/multiqc.html",
-        "results/qc/multiqc_data/multiqc_general_stats.txt"
-    params:
-        extra="",  # Optional: extra parameters for multiqc
-    threads: config["resources"]["fastqc"]["cpu"]
-    log:
-        "logs/multiqc/multiqc.log"
-    wrapper:
-        "v2.6.0/bio/multiqc"
+        input:
+            expand("results/qc/fastqc/{sample}{end}_fastqc.zip", sample=SAMPLES, end=["_R1","_R2"])
+        output:
+            r="results/qc/multiqc/multiqc.html",
+            d=directory("results/qc/multiqc/"),
+        params:
+            extra="",  # Optional: extra parameters for multiqc
+        threads: config["resources"]["fastqc"]["cpu"]
+        resources:
+            runtime=config["resources"]["fastqc"]["time"],
+            mem_mb = 2048,
+        log:
+            "logs/multiqc/multiqc.log"
+        conda:
+            "../envs/resources.yml"
+        shell:
+            "multiqc " 
+            "--force "
+            "--outdir {output.d} "
+            "-n multiqc.html "
+            "{params.extra} "
+            "{input} "
+            "> {log} 2>&1"
