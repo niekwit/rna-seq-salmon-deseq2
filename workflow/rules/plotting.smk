@@ -5,6 +5,9 @@ rule mapping_rates_plot:
         report("results/plots/mapping_rates.pdf", caption="report/mapping_rates.rst", category="Mapping rates")
     params:
         "salmon",
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"]
     conda:
         "../envs/deseq2.yml"
     log:
@@ -34,6 +37,8 @@ rule heatmap_sample_distance:
         "results/deseq2/dds.RData",
     output:
         report("results/plots/sample_distance.pdf", caption="report/sample_distance.rst", category="Sample distances"),
+    params:
+        genome=resources.genome,
     conda:
         "../envs/deseq2.yml"
     threads: config["resources"]["plotting"]["cpu"]

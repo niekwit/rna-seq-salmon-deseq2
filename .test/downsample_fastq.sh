@@ -11,7 +11,6 @@ curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR139/082/SRR13989882/SRR13989882_1.
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR139/082/SRR13989882/SRR13989882_2.fastq.gz -o Control_2_R2.fastq.gz
 
 for FILE in $(ls *.fastq.gz); do
-    pigz -c $FILE | head -4000000 | pigz > downsampled_$FILE
+    pigz -cd $FILE | head -2000000 | pigz > reads/$FILE
     rm $FILE
-    mv downsampled_$FILE $FILE
 done

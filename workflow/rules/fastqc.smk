@@ -9,6 +9,9 @@ rule fastqc:
     log:
         "logs/fastqc/{sample}{end}.log"
     threads: config["resources"]["fastqc"]["cpu"]
+    resources:
+        runtime=config["resources"]["fastqc"]["time"],
+        mem_mb = 2048,
     wrapper:
         "v3.3.6/bio/fastqc"
 

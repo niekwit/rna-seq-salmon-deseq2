@@ -1,6 +1,6 @@
 import os
+import scripts.general_functions as utils
 from scripts.resources import Resources
-include: "scripts/general_functions"
 from snakemake.utils import min_version
 
 report: "report/workflow.rst"
@@ -45,11 +45,11 @@ onsuccess:
     shell("cp -v {log} {snake_log}")
 
     # Compress genome files
-    shell(f"pigz {resources.gencode_fasta} {resources.gencode_trx_fasta} {resources.gencode_gtf}")
+    shell(f"pigz {resources.fasta} {resources.trx_fasta} {resources.gtf}")
     print("Analysis finished successfully!")
 
 onerror:
     shell("cp -v {log} {snake_log}")
-    print(f"Analysis (partly) failed...\nCheck {snake_log} for details")
+    print(f"Analysis failed...\nCheck {snake_log} for details")
 
 

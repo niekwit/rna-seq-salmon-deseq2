@@ -7,11 +7,13 @@ rule trim_galore_pe:
         fasta_rev=temp("results/trimmed/{sample}_R2.fq.gz"),
         report_rev="logs/trim_galore/{sample}_R2_trimming_report.txt",
     threads: config["resources"]["trim"]["cpu"],
+    resources: 
+        runtime=config["resources"]["trim"]["time"],
     params:
         extra="--illumina -q 20",
     log:
         "logs/trim_galore/{sample}.log",
     wrapper:
-        "v2.6.0/bio/trim_galore/pe"
+        "v3.3.6/bio/trim_galore/pe"
 
         

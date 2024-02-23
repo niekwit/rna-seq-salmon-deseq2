@@ -2,7 +2,7 @@ rule salmon_quant:
     input:
         r1="results/trimmed/{sample}_R1.fq.gz",
         r2="results/trimmed/{sample}_R2.fq.gz",
-        index="resources/transcriptome_index/",
+        index=f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
     output:
         quant="results/salmon/{sample}/quant.sf",
         lib="results/salmon/{sample}/lib_format_counts.json",
@@ -13,6 +13,8 @@ rule salmon_quant:
         libtype="A", # automatic detection of library type
         extra=config["salmon-quant"]["extra_params"],
     threads: config["resources"]["mapping"]["cpu"],
+    resources:
+        runtime=config["resources"]["mapping"]["time"],
     wrapper:
         "v3.3.6/bio/salmon/quant"
 

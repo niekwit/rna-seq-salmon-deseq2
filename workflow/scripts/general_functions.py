@@ -1,6 +1,5 @@
 import pandas as pd
 import sys
-import glob
 import os
 
 def import_samples():
