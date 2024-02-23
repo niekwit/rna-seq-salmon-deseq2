@@ -1,0 +1,5 @@
+"sample","genotype","treatment","reference"
+"WT_1","WT","Normoxia","yes"
+"WT_2","WT","Normoxia","yes"
+"WT_Hypoxia_1","WT","Hypoxia","no"
+"WT_Hypoxia_2","WT","Hypoxia","no"
