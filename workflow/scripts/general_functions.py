@@ -13,7 +13,7 @@ def import_samples():
             r1 = f"reads/{sample}_R1.fastq.gz"
             r2 = f"reads/{sample}_R2.fastq.gz"
             
-            assert any(os.path.isfile(x) for x in [r1,r2]), f"ERROR: one or more fastq files (R1/R2) from sample {sample} not found in reads directory"
+            assert any(os.path.isfile(x) for x in [r1,r2]), f"One or more fastq files (R1/R2) from sample {sample} not found in reads directory"
 
         return SAMPLES
         
