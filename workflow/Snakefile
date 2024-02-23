@@ -1,23 +1,23 @@
 import os
 from scripts.resources import Resources
-from scripts import general_functions as utils
+include: "scripts/general_functions"
 from snakemake.utils import min_version
 
 report: "report/workflow.rst"
 
-# set minimum snakemake version
-min_version("6.4.1")
+# Set minimum snakemake version
+min_version("7.25.0")
 
-# load config file
+# Load config file
 configfile: "config/config.yml"
 
-# load gneome resources to be used in rules
+# Load gneome resources to be used in rules
 resources = Resources(config["genome"], config["gencode_genome_build"])
 
-# get sample names
+# Get sample names
 SAMPLES = utils.import_samples()
 
-# import rules
+# Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
@@ -25,7 +25,7 @@ include: "rules/mapping.smk"
 include: "rules/deseq2.smk"
 include: "rules/plotting.smk"
 
-# target rule
+# Target rule
 rule all:
     input: 
         "results/plots/mapping_rates.pdf",
@@ -34,15 +34,17 @@ rule all:
         "results/plots/volcano/",
         "results/qc/multiqc/multiqc.html",
 
+# Rules to be run on login node (very small jobs)
+localrules: all, get_genome_fasta, get_trx_fasta, get_gtf
 
-# save snakemake terminal output to log file
+# Save snakemake terminal output to log file
 snake_log = "logs/snakemake/snakemake.log"
 os.makedirs("logs/snakemake", exist_ok=True)
 
 onsuccess: 
     shell("cp -v {log} {snake_log}")
 
-    # compress genome files
+    # Compress genome files
     shell(f"pigz {resources.gencode_fasta} {resources.gencode_trx_fasta} {resources.gencode_gtf}")
     print("Analysis finished successfully!")
 
