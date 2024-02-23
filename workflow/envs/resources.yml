@@ -6,3 +6,4 @@ channels:
 dependencies:
   - python=3.11
   - multiqc=1.20
+  - pigz=2.8
