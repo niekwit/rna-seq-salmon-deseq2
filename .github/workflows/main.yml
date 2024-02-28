@@ -45,7 +45,12 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs --cores 3 --conda-cleanup-pkgs cache --all-temp"
-
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: niekwit/rna-seq-salmon-deseq2
     #- name: Test report
     #  uses: snakemake/snakemake-github-action@v1.24.0
     #  with:
