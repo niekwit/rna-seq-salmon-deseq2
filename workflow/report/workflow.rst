@@ -1,0 +1,3 @@
+This workflow performs differential transcript analysis on paired-end RNA-seq data. After adapter sequence removal with `trim_galore <https://github.com/FelixKrueger/TrimGalore>`_, reads are mapped and transcript counts are generated with `Salmon <https://salmon.readthedocs.io/en/latest/salmon.html>`_. Integrated normalization and differential expression analysis is conducted with `DESeq2 <https://bioconductor.org/packages/release/bioc/html/DESeq2.html>`_ following the standard procedure as outlined in the manual. Custom R script are used to create various plots, such as for mapping rates and volcano plots.
+
+The GitHub repository for this workflow can be found `here <https://github.com/niekwit/rna-seq-salmon-deseq2>`_.

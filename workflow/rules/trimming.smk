@@ -1,6 +1,6 @@
 rule trim_galore_pe:
     input:
-        ["reads/{sample}_R1.fastq.gz", "reads/{sample}_R2.fastq.gz"],
+        ["reads/{sample}_R1_001.fastq.gz", "reads/{sample}_R2_001.fastq.gz"],
     output:
         fasta_fwd=temp("results/trimmed/{sample}_R1.fq.gz"),
         report_fwd="logs/trim_galore/{sample}_R1_trimming_report.txt",
@@ -14,6 +14,6 @@ rule trim_galore_pe:
     log:
         "logs/trim_galore/{sample}.log",
     wrapper:
-        "v3.3.6/bio/trim_galore/pe"
+        "v3.4.0/bio/trim_galore/pe"
 
         

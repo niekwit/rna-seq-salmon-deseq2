@@ -2,9 +2,10 @@ rule deseq2:
     input:
         salmon=expand("results/salmon/{sample}/quant.sf", sample=SAMPLES),
         gtf=resources.gtf,
-    retries: 5 #bioMart sometimes fails to connect
+    retries: 5 # bioMart sometimes fails to connect
     output:
-        xlsx=report("results/deseq2/deseq2.xlsx", caption="report/deseq2.rst", category="Differential Expression Analysis"),
+        xlsx=report("results/deseq2/deseq2.xlsx", caption="../report/deseq2.rst", category="Differential Expression Analysis"),
+        csv=report(expand("results/deseq2/{comparison}.csv", comparison=COMPARISONS), caption="../report/deseq2.rst", category="Differential Expression Analysis"),
         rdata="results/deseq2/dds.RData"
     params:
         genome=resources.genome,        

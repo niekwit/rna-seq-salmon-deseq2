@@ -13,16 +13,16 @@ rule fastqc:
         runtime=config["resources"]["fastqc"]["time"],
         mem_mb = 2048,
     wrapper:
-        "v3.3.6/bio/fastqc"
+        "v3.4.0/bio/fastqc"
 
 
 rule multiqc:
         input:
-            expand("results/qc/fastqc/{sample}{end}_fastqc.zip", sample=SAMPLES, end=["_R1","_R2"])
+            expand("results/qc/fastqc/{sample}{end}_fastqc.zip", sample=SAMPLES, end=["_R1_001","_R2_001"])
         output:
-            r="results/qc/multiqc/multiqc.html",
-            d=directory("results/qc/multiqc/"),
+            "results/qc/multiqc/multiqc.html",
         params:
+            dir=lambda wildcards, output: os.path.dirname(output[0]),
             extra="",  # Optional: extra parameters for multiqc
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
@@ -35,7 +35,7 @@ rule multiqc:
         shell:
             "multiqc " 
             "--force "
-            "--outdir {output.d} "
+            "--outdir {params.dir} "
             "-n multiqc.html "
             "{params.extra} "
             "{input} "

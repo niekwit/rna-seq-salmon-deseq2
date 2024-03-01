@@ -2,8 +2,7 @@ rule salmon_quant:
     input:
         r1="results/trimmed/{sample}_R1.fq.gz",
         r2="results/trimmed/{sample}_R2.fq.gz",
-        index=f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
-        idxfiles=multiext(
+        index=multiext(
             f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
             "complete_ref_lens.bin",
             "ctable.bin",
@@ -34,6 +33,6 @@ rule salmon_quant:
     resources:
         runtime=config["resources"]["mapping"]["time"],
     wrapper:
-        "v3.3.6/bio/salmon/quant"
+        "v3.4.0/bio/salmon/quant"
 
 
