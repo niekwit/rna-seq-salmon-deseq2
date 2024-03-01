@@ -62,8 +62,8 @@ def comparisons():
     sample_info = pd.read_csv("config/samples.csv")
        
     # Combine genotype and treatment to get unique conditions
-    sample_info["condition"] = sample_info["genotype"] + "_" + sample_info["treatment"]
-    
+    sample_info["condition"] = sample_info[["genotype","treatment"]].agg('_'.join, axis=1)
+
     # Get reference conditions
     reference_conditions = sample_info[sample_info["reference"] == "yes"]["condition"].unique().tolist()
     
