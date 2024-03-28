@@ -1,0 +1,97 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: Snakemake configuration file
+
+type: object
+
+properties:
+  genome:
+    type: string
+    enum: ["human", "mouse"]
+    description: Ensembl genome
+  
+  gencode_genome_build:
+    type: integer
+    minimum: 1
+    description: Gencode genome build
+  
+  fdr_cutoff:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Adj p value cut off for volcano plots
+  
+  fc_cutoff:
+    type: number
+    minimum: 0
+    description: log2 fold change cut off for volcano plots
+  
+  deseq2:
+    type: object
+    properties:
+      model:
+        type: string
+        description: custom model for DESeq2
+
+  required:
+  - genome
+  - gencode_genome_build
+  - fdr_cutoff
+  - fc_cutoff
+  - deseq2
+
+  resources:
+    type: object
+    properties:
+      trim:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 10
+      fastqc:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 10
+      mapping:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 10
+      deseq2:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 10
+      plotting:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 10
+    
+      required:
+      - trim
+      - fastqc
+      - mapping
+      - deseq2
+      - plotting

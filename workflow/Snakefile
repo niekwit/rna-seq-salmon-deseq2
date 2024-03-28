@@ -1,15 +1,21 @@
 import os
+import datetime
 include: "scripts/general_functions.smk"
 from scripts.resources import Resources
-from snakemake.utils import min_version
+from snakemake.utils import min_version, validate
 
 report: "report/workflow.rst"
 
 # Set minimum snakemake version
 min_version("7.24.0")
 
-# Load config file
+# Load and validate config file
 configfile: "config/config.yml"
+validate(config, "schemas/config.schema.yaml")
+
+# Load and validate sample info
+sample_info = pd.read_csv("config/samples.csv")
+#validate(sample_info, "schemas/samples.schema.yaml")
 
 # Load genome resources to be used in rules
 resources = Resources(config["genome"], config["gencode_genome_build"])
@@ -35,13 +41,13 @@ rule all:
 localrules: all, get_genome_fasta, get_trx_fasta, get_gtf
 
 # Save snakemake terminal output to log file
-snake_log = "logs/snakemake/snakemake.log"
+time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+snake_log = f"logs/snakemake/{time}_snakemake.log"
 os.makedirs("logs/snakemake", exist_ok=True)
 
 onsuccess: 
     shell("cp -v {log} {snake_log}")
     print("Analysis finished successfully!")
-
 onerror:
     shell("cp -v {log} {snake_log}")
     print(f"Analysis failed...\nCheck {snake_log} for details")
