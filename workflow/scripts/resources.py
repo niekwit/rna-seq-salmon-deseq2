@@ -9,7 +9,7 @@ class Resources:
     
     def __init__(self, genome, build):
         self.genome = genome
-        self.build = build
+        self.build = str(build)
                 
         # base URL
         base_url_gencode = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_"
