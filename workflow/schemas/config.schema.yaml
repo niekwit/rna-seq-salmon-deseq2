@@ -7,7 +7,7 @@ type: object
 properties:
   genome:
     type: string
-    enum: ["human", "mouse"]
+    enum: ["human", "mouse", "test"]
     description: Ensembl genome
   
   gencode_genome_build:
