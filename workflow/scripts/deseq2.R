@@ -22,11 +22,22 @@ gtf <- snakemake@input[["gtf"]]
 samples <- read.csv("config/samples.csv", header=TRUE)
 genotypes <- unique(samples$genotype)
 treatments <- unique(samples$treatment)
+design <- snakemake@params[["design"]]
 
 if (length(treatments) > 1) {
   samples$comb <- paste0(samples$genotype, "_", samples$treatment)
 } else {
   samples$comb <- paste0(samples$genotype)
+}
+
+# Check if batch column exists
+if ("batch" %in% colnames(samples)) {
+  batches <- unique(samples$batch)
+  samples$batch <- as.factor(samples$batch)
+} else {
+  # Add batch column with just one batch
+  samples$batch <- as.factor("1")
+  batches <- 1
 }
 
 # Create txdb from GTF
@@ -36,20 +47,35 @@ txdb <- makeTxDbFromGFF(gtf)
 k <- keys(txdb, keytype = "TXNAME")
 tx2gene <- AnnotationDbi::select(txdb, k, "GENEID", "TXNAME")
 
-# read Salmon quant.sf files
+# Read Salmon quant.sf files
 txi <- tximport(files,
                 type = "salmon",
                 tx2gene = tx2gene)
 
-# create DESeqDataSet
-dds <- DESeqDataSetFromTximport(txi,
-                                colData = samples,
-                                design = ~ comb)
+# Create DESeqDataSet
+if (str_length(design) == 0) {
+  if (length(batches) == 1){
+  print("Not including batch factor in DESeq2 design...")
+  dds <- DESeqDataSetFromTximport(txi,
+                                  colData = samples,
+                                  design = ~ comb)
+  } else {
+  print("Including batch factor in DESeq2 design...")
+  dds <- DESeqDataSetFromTximport(txi,
+                                  colData = samples,
+                                  design = ~ batch + comb)
+  }
+} else {
+  print(paste0("Using custom DESeq2 design: ", design, "..."))
+  dds <- DESeqDataSetFromTximport(txi,
+                                  colData = samples,
+                                  design = as.formula(design))
+}
 
-# save dds to file (input for other scripts)
+# Save dds to file (input for other scripts)
 save(dds, file = snakemake@output[["rdata"]])
 
-# load data for gene annotation
+# Load data for gene annotation
 mart <- useMart("ensembl")
 
 if (genome == "human" || genome == "test") {
@@ -58,49 +84,43 @@ if (genome == "human" || genome == "test") {
   mart <- useDataset("mmusculus_gene_ensembl", mart = mart)
 }
 
-# load reference samples
+# Load reference samples
 references <- unique(samples[samples$reference == "yes", ]$comb)
 
-# create nested list to store all pairwise comparisons (top level:
-#references, lower level: samples without reference)
-df.list <- vector(mode = "list",
-                  length = length(references))
-for (i in seq(references)){
-  df.list[[i]] <- vector(mode = "list",
-                         length = (length(unique(samples$comb)) - 1))
-}
+# List to store data from each contrast
+resList <- list()
 
-# for each reference sample, perform pairwise comparisons with all the other samples
+# For each reference sample, perform pairwise comparisons with all the other samples
 for (r in seq_along(references)){
   cat(paste0("Setting reference level: ",references[r], " (",r,"/",length(references),")\n"))
 
-  # copy dds
+  # Copy dds
   dds_relevel <- dds
 
-  # for each reference sample, set it as reference in dds
+  # For each reference sample, set it as reference in dds
   dds_relevel$comb <- relevel(dds$comb, ref = references[r])
 
-  # differential expression analysis
+  # Differential expression analysis
   dds_relevel <- DESeq(dds_relevel)
 
-  # get comparisons
+  # Get comparisons
   comparisons <- resultsNames(dds_relevel)
   comparisons <- strsplit(comparisons, " ")
   comparisons[1] <- NULL
 
   
-  # create df for each comparison
+  # Create df for each comparison
   for (c in seq_along(comparisons)){
     comparison <- comparisons[[c]]
-    comparison <- str_replace(comparison, "comb_", "") #get name
+    comparison <- str_replace(comparison, "comb_", "") # Get name
     print(paste0("Specifiying contrast: ",comparison, " (",c,"/",length(comparisons),")"))
 
-    res <- results(dds_relevel, name=comparisons[[c]])
+    res <- results(dds_relevel, name = comparisons[[c]])
     df <- as.data.frame(res) %>%
       mutate(ensembl_gene_id = res@rownames, .before = 1)
 
-    #annotate df
-    df$ensembl_gene_id <- gsub("\\.[0-9]*","",df$ensembl_gene_id) #tidy up gene IDs
+    # Annotate df
+    df$ensembl_gene_id <- gsub("\\.[0-9]*","",df$ensembl_gene_id) # Tidy up gene IDs
     gene.info <- getBM(filters = "ensembl_gene_id",
                        attributes = c("ensembl_gene_id",
                                       "external_gene_name",
@@ -115,64 +135,49 @@ for (r in seq_along(references)){
     
     df <- left_join(df,gene.info,by = "ensembl_gene_id")
 
-    # remove genes with baseMean zero
+    # Remove genes with baseMean zero
     df <- df[df$baseMean != 0, ]
 
-    # add normalised read counts for each sample to df
+    # Add normalised read counts for each sample to df
     temp <- as.data.frame(counts(dds_relevel, normalized = TRUE))
     temp$ensembl_gene_id <- row.names(temp)
-    temp$ensembl_gene_id <- gsub("\\.[0-9]*", "", temp$ensembl_gene_id) #tidy up gene IDs
+    temp$ensembl_gene_id <- gsub("\\.[0-9]*", "", temp$ensembl_gene_id) # Tidy up gene IDs
     names(temp)[1:length(dds_relevel@colData@listData$sample)] <- dds_relevel@colData@listData$sample
 
     df <- left_join(df, temp, by = "ensembl_gene_id")
 
-    # move some columns around
+    # Move some columns around
     df <- df %>%
       relocate(external_gene_name, .after = ensembl_gene_id) %>%
       relocate((ncol(df) - (length(dds_relevel@colData@listData$sample) - 1)):ncol(df), .after = baseMean)
 
-    # order data for padj
+    # Order data for padj
     df <- df[order(df$padj), ]
 
-    # add column with just contrast name
+    # Add column with just contrast name
     df <- df %>%
-      mutate(contrast_name = comparison, .before=1)
+      mutate(contrast_name = comparison, .before = 1)
 
-    # sheet title can be max 31 characters
-    # add column with contrast name and change it to a number (counter)
+    # Sheet title can be max 31 characters
+    # Add column with contrast name and change it to a number (counter)
     df <- df %>%
-      mutate(contrast_name = comparison, .before=1)
+      mutate(contrast_name = comparison, .before = 1)
 
-    # save df to df.list
-    df.list[[r]][[c]] <- df
+    # Save df to resList
+    resList[[(length(resList) + 1)]] <- df
   }
 }
-
-# Function to flatten nested lists 
-# (https://stackoverflow.com/questions/16300344/how-to-flatten-a-list-of-lists/41882883#41882883)
-flattenlist <- function(x) {
-  morelists <- sapply(x, function(xprime) class(xprime)[1] == "list")
-  out <- c(x[!morelists], unlist(x[morelists], recursive = FALSE))
-  if(sum(morelists)) {
-    Recall(out)
-  } else {
-    return(out)
-  }
-}
-
-# Flatten df.list
-df.list <- flattenlist(df.list)
 
 # Get contrast names from each df in list
-names <- lapply(df.list, function(x) unique(x$contrast_name))
+names <- lapply(resList, function(x) unique(x$contrast_name))
 
 # Name data frames in list
-names(df.list) <- names
+names(resList) <- names
 
-# write each df also to separate csv file
-for (i in seq(df.list)){
-  write_csv(df.list[[i]],
-            paste0("results/deseq2/", names(df.list)[i], ".csv"))
+# Write each df also to separate csv file
+for (i in seq(resList)){
+  write_csv(resList[[i]],
+            paste0("results/deseq2/", names(resList)[i], ".csv"))
 }
 
 # Check if any df name is longer than 31 characters (not supported by openxlsx)
@@ -181,11 +186,11 @@ if (any(nchar(names) > 31)) {
   names <- seq_along(length(names))
 
   # Rename data frames in list
-  names(df.list) <- names
+  names(resList) <- names
 }
 
 # Write to one file
-write.xlsx(df.list,
+write.xlsx(resList,
            snakemake@output[["xlsx"]],
            colNames = TRUE)
 

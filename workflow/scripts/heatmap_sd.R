@@ -6,6 +6,7 @@ sink(log, type = "message")
 library(DESeq2)
 library(RColorBrewer)
 library(pheatmap)
+library(limma)
 
 # Load DESeq2 data
 load(snakemake@input[[1]])
@@ -16,10 +17,23 @@ if (genome == "test") {
   # For data set with few genes
   # https://support.bioconductor.org/p/98634/
   dds <- estimateSizeFactors(dds)
-  rows <- sum( rowMeans( counts(dds, normalized=TRUE)) > 5 )
+  rows <- sum( rowMeans( counts(dds, normalized = TRUE)) > 5 )
   vsd <- vst(dds, nsub = rows)
 } else {
-  vsd <- vst(dds, blind=FALSE)
+  vsd <- vst(dds, blind = FALSE)
+}
+
+# Check if batch correction is needed
+batches <- dds$batch
+if (length(unique(batches)) > 1) {
+  print("Removing batch effect from data...")
+  # Remove batch variation with limma
+  mat <- assay(vsd)
+  mm <- model.matrix(~comb, colData(vsd))
+  mat <- limma::removeBatchEffect(mat, 
+                                  batch = vsd$batch, 
+                                  design = mm)
+  assay(vsd) <- mat
 }
 
 # Calculate sample distances
