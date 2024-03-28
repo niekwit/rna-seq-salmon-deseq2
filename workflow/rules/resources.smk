@@ -46,7 +46,7 @@ rule salmon_decoy:
     log:
         "logs/salmon/decoys.log"
     wrapper:
-        "v3.4.0/bio/salmon/decoys"
+        "v3.4.1/bio/salmon/decoys"
 
 
 rule salmon_index:
@@ -75,9 +75,9 @@ rule salmon_index:
         #directory(f"resources/{resources.genome}_{resources.build}_transcriptome_index/"),
     log:
         "logs/salmon/index.log",
-    threads: config["resources"]["mapping"]["cpu"]
+    threads: config["resources"]["mapping"]["cpu"] * 3
     params:
         # optional parameters
         extra=config["salmon-index"]["extra_params"],
     wrapper:
-        "v3.4.0/bio/salmon/index"
+        "v3.4.1/bio/salmon/index"
