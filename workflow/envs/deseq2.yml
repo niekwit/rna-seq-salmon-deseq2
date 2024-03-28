@@ -22,4 +22,5 @@ dependencies:
   - bioconductor-tximport=1.26.0
   - r-ggfortify=0.4.16
   - r-dbplyr=2.3.4
+  - bioconductor-limma=3.54.0
   
