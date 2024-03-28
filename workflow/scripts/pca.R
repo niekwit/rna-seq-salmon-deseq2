@@ -36,14 +36,14 @@ if (length(unique(batches)) > 1) {
   }
   
   # Create PCA plot
-  pca <- plotPCA(vsd, intgroup=c("genotype", "treatment")) +
+  pca <- plotPCA(vsd, intgroup = c("genotype", "treatment")) +
     geom_text_repel(aes(label = vsd$sample),
                     size = 6) + 
     guides(colour = "none") +
     theme_cowplot(18) +
     scale_color_brewer(palette = palette)
 } else {
-  print("Not correction PCA for batch effect...")
+  print("No correction for batch effect...")
   # Log transform data
   rld <- rlog(dds)
   
@@ -55,7 +55,7 @@ if (length(unique(batches)) > 1) {
   }
   
   # Create PCA plot
-  pca <- plotPCA(rld, intgroup=c("genotype", "treatment")) +
+  pca <- plotPCA(rld, intgroup = c("genotype", "treatment")) +
     geom_text_repel(aes(label = rld$sample)) + 
     guides(colour = "none") +
     theme_cowplot(18) +
