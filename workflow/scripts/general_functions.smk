@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-import re
 
 def targets():
     targets = [
@@ -20,24 +19,6 @@ def samples():
     """
     csv = pd.read_csv("config/samples.csv")
     SAMPLES = csv["sample"]
-
-    # Check if sample names contain any characters that are not alphanumeric or underscore
-    illegal = []
-    for sample in SAMPLES:
-        if not re.match("^[a-zA-Z0-9_]*$", sample):
-            illegal.append(sample)
-    if len(illegal) != 0:
-        illegal = "\n".join(illegal)
-        raise ValueError(f"Following samples contain illegal characters:\n{illegal}")
-
-    # Check if each sample name ends with _[0-9]
-    wrong = []
-    for sample in SAMPLES:
-        if not re.match(".*_[0-9]$", sample):
-            wrong.append(sample)
-    if len(wrong) != 0:
-        wrong = "\n".join(wrong)
-        raise ValueError(f"Following samples do not end with _[0-9]:\n{wrong}")
 
     # Check if sample names match file names
     not_found = []
@@ -59,16 +40,27 @@ def comparisons():
     """
     Create pairwise comparison strings from samples.csv
     """
-    sample_info = pd.read_csv("config/samples.csv")
-       
-    # Combine genotype and treatment to get unique conditions
-    sample_info["condition"] = sample_info[["genotype","treatment"]].agg('_'.join, axis=1)
+    if len(sample_info["genotype"].unique()) > 1 and len(sample_info["treatment"].unique()) > 1:
+        # Combine genotype and treatment to get unique conditions
+        sample_info["condition"] = sample_info[["genotype","treatment"]].agg('_'.join, axis=1)
 
-    # Get reference conditions
-    reference_conditions = sample_info[sample_info["reference"] == "yes"]["condition"].unique().tolist()
-    
-    # Get test conditions
-    test_conditions = sample_info[sample_info["reference"] != "yes"]["condition"].unique().tolist()
+        # Get reference conditions
+        reference_conditions = sample_info[sample_info["reference"] == "yes"]["condition"].unique().tolist()
+        
+        # Get test conditions
+        test_conditions = sample_info[sample_info["reference"] != "yes"]["condition"].unique().tolist()
+    elif len(sample_info["genotype"].unique()) > 1 and len(sample_info["treatment"].unique()) == 1:
+        # Get reference conditions
+        reference_conditions = sample_info[sample_info["reference"] == "yes"]["genotype"].unique().tolist()
+
+        # Get test conditions
+        test_conditions = sample_info[sample_info["reference"] != "yes"]["genotype"].unique().tolist()
+    elif len(sample_info["genotype"].unique()) == 1 and len(sample_info["treatment"].unique()) > 1:
+        # Get reference conditions
+        reference_conditions = sample_info[sample_info["reference"] == "yes"]["treatment"].unique().tolist()
+
+        # Get test conditions
+        test_conditions = sample_info[sample_info["reference"] != "yes"]["treatment"].unique().tolist()
     
     # Create strings for comparisons
     comparisons = []
