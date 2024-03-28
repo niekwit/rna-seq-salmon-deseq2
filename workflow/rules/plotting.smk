@@ -18,7 +18,7 @@ rule mapping_rates_plot:
 
 rule pca_plot:
     input:
-        "results/deseq2/dds.RData",
+        dds="results/deseq2/dds.RData",
     output:
         report("results/plots/pca.pdf", caption="../report/pca.rst", category="PCA"),
     conda:
