@@ -12,6 +12,7 @@ library(stringr)
 library(biomaRt)
 library(readr)
 library(openxlsx)
+library(rtracklayer)
 
 # load snakemake variables
 files <- snakemake@input[["salmon"]]
@@ -40,7 +41,15 @@ if ("batch" %in% colnames(samples)) {
   batches <- 1
 }
 
+# Gene annotation info
+print("Reading gene annotation info...")
+db <- rtracklayer::import(gtf)
+gene.info <- data.frame(ensembl_gene_id = db$gene_id, 
+                  external_gene_name = db$gene_name, 
+                  gene_biotype = db$gene_biotype)
+
 # Create txdb from GTF
+print("Creating txdb from GTF...")
 txdb <- makeTxDbFromGFF(gtf)
 
 # Create transcript to gene file
@@ -74,15 +83,6 @@ if (str_length(design) == 0) {
 
 # Save dds to file (input for other scripts)
 save(dds, file = snakemake@output[["rdata"]])
-
-# Load data for gene annotation
-mart <- useMart("ensembl")
-
-if (genome == "human" || genome == "test") {
-  mart <- useDataset("hsapiens_gene_ensembl", mart = mart)
-} else if (genome == "mouse") {
-  mart <- useDataset("mmusculus_gene_ensembl", mart = mart)
-}
 
 # Load reference samples
 references <- unique(samples[samples$reference == "yes", ]$comb)
@@ -120,20 +120,7 @@ for (r in seq_along(references)){
       mutate(ensembl_gene_id = res@rownames, .before = 1)
 
     # Annotate df
-    df$ensembl_gene_id <- gsub("\\.[0-9]*","",df$ensembl_gene_id) # Tidy up gene IDs
-    gene.info <- getBM(filters = "ensembl_gene_id",
-                       attributes = c("ensembl_gene_id",
-                                      "external_gene_name",
-                                      "description",
-                                      "gene_biotype",
-                                      "chromosome_name",
-                                      "start_position",
-                                      "end_position",
-                                      "percentage_gene_gc_content"),
-                       values = df$ensembl_gene_id,
-                       mart = mart)
-    
-    df <- left_join(df,gene.info,by = "ensembl_gene_id")
+    df <- left_join(df, gene.info, by = "ensembl_gene_id")
 
     # Remove genes with baseMean zero
     df <- df[df$baseMean != 0, ]
@@ -141,7 +128,6 @@ for (r in seq_along(references)){
     # Add normalised read counts for each sample to df
     temp <- as.data.frame(counts(dds_relevel, normalized = TRUE))
     temp$ensembl_gene_id <- row.names(temp)
-    temp$ensembl_gene_id <- gsub("\\.[0-9]*", "", temp$ensembl_gene_id) # Tidy up gene IDs
     names(temp)[1:length(dds_relevel@colData@listData$sample)] <- dds_relevel@colData@listData$sample
 
     df <- left_join(df, temp, by = "ensembl_gene_id")
