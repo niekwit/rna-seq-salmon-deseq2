@@ -9,6 +9,9 @@ report: "report/workflow.rst"
 # Set minimum snakemake version
 min_version("7.24.0")
 
+# Wrapper version
+wrapper_version = "v3.7.0"
+
 # Load and validate config file
 configfile: "config/config.yml"
 validate(config, "schemas/config.schema.yaml")
