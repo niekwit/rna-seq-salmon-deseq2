@@ -33,6 +33,6 @@ rule salmon_quant:
     resources:
         runtime=config["resources"]["mapping"]["time"],
     wrapper:
-        "v3.4.1/bio/salmon/quant"
+        f"{wrapper_version}/bio/salmon/quant"
 
 

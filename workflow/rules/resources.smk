@@ -2,6 +2,7 @@ rule get_genome_fasta:
     output:
         resources.fasta,
     retries: 3
+    cache: False
     params:
         url=resources.fa_url,
     log:
@@ -40,13 +41,14 @@ rule salmon_decoy:
     output:
         gentrome=temp("resources/gentrome.fasta"),
         decoys="resources/decoys.txt",
+    cache: False
     threads: config["resources"]["mapping"]["cpu"]
     resources: 
         runtime=config["resources"]["mapping"]["time"]
     log:
         "logs/salmon/decoys.log"
     wrapper:
-        "v3.4.1/bio/salmon/decoys"
+        f"{wrapper_version}/bio/salmon/decoys"
 
 
 rule salmon_index:
@@ -72,12 +74,12 @@ rule salmon_index:
             "seq.bin",
             "versionInfo.json",
         ),
-        #directory(f"resources/{resources.genome}_{resources.build}_transcriptome_index/"),
+    cache: False #https://github.com/snakemake/snakemake/issues/1808
     log:
-        "logs/salmon/index.log",
+        "logs/salmon/index.log"
     threads: config["resources"]["mapping"]["cpu"] * 3
     params:
         # optional parameters
         extra=config["salmon-index"]["extra_params"],
     wrapper:
-        "v3.4.1/bio/salmon/index"
+        f"{wrapper_version}/bio/salmon/index"
