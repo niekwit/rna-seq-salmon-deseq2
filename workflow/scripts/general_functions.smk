@@ -61,6 +61,8 @@ def comparisons():
 
         # Get test conditions
         test_conditions = sample_info[sample_info["reference"] != "yes"]["treatment"].unique().tolist()
+    else:
+        raise ValueError("Cannot create comparisons with only one treatment and one genotype...")
     
     # Create strings for comparisons
     comparisons = []
