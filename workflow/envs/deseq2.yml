@@ -16,11 +16,10 @@ dependencies:
   - r-openxlsx=4.2.5
   - r-foreach=1.5.2
   - r-ggrepel=0.9.3
-  - bioconductor-biomart=2.54.0
   - bioconductor-deseq2=1.38.0
   - bioconductor-genomicfeatures=1.50.2
   - bioconductor-tximport=1.26.0
   - r-ggfortify=0.4.16
-  - r-dbplyr=2.3.4
   - bioconductor-limma=3.54.0
+  - bioconductor-rtracklayer=1.58.0
   
