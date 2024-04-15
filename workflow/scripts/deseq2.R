@@ -9,10 +9,9 @@ library(GenomicFeatures)
 library(tximport)
 library(dplyr)
 library(stringr)
-library(biomaRt)
+library(rtracklayer)
 library(readr)
 library(openxlsx)
-library(rtracklayer)
 
 # load snakemake variables
 files <- snakemake@input[["salmon"]]
@@ -25,10 +24,14 @@ genotypes <- unique(samples$genotype)
 treatments <- unique(samples$treatment)
 design <- snakemake@params[["design"]]
 
-if (length(treatments) > 1) {
+if (length(genotypes) > 1 & length(treatments) > 1) {
   samples$comb <- paste0(samples$genotype, "_", samples$treatment)
+} else if (length(genotypes) > 1 & length(treatments) == 1) {
+  samples$comb <- samples$genotype
+} else if (length(genotypes) == 1 & length(treatments) > 1) {
+  samples$comb <- samples$treatment
 } else {
-  samples$comb <- paste0(samples$genotype)
+  stop("Error: Not enough genotypes or treatments for differential expression analysis")
 }
 
 # Check if batch column exists
@@ -41,20 +44,18 @@ if ("batch" %in% colnames(samples)) {
   batches <- 1
 }
 
-# Gene annotation info
-print("Reading gene annotation info...")
-db <- rtracklayer::import(gtf)
-gene.info <- data.frame(ensembl_gene_id = db$gene_id, 
-                  external_gene_name = db$gene_name, 
-                  gene_biotype = db$gene_biotype)
-
 # Create txdb from GTF
-print("Creating txdb from GTF...")
 txdb <- makeTxDbFromGFF(gtf)
 
 # Create transcript to gene file
 k <- keys(txdb, keytype = "TXNAME")
 tx2gene <- AnnotationDbi::select(txdb, k, "GENEID", "TXNAME")
+
+# Gene annotation info
+db <- rtracklayer::import(gtf)
+gene.info <- data.frame(ensembl_gene_id = db$gene_id, 
+                        external_gene_name = db$gene_name) %>%
+  filter(!duplicated(ensembl_gene_id))
 
 # Read Salmon quant.sf files
 txi <- tximport(files,
@@ -120,7 +121,9 @@ for (r in seq_along(references)){
       mutate(ensembl_gene_id = res@rownames, .before = 1)
 
     # Annotate df
-    df <- left_join(df, gene.info, by = "ensembl_gene_id")
+    #df$ensembl_gene_id <- gsub("\\.[0-9]*","",df$ensembl_gene_id) # Tidy up gene IDs
+    df <- left_join(df,gene.info,by = "ensembl_gene_id") %>%
+      relocate(external_gene_name, .after = ensembl_gene_id)
 
     # Remove genes with baseMean zero
     df <- df[df$baseMean != 0, ]
@@ -128,24 +131,20 @@ for (r in seq_along(references)){
     # Add normalised read counts for each sample to df
     temp <- as.data.frame(counts(dds_relevel, normalized = TRUE))
     temp$ensembl_gene_id <- row.names(temp)
+    #temp$ensembl_gene_id <- gsub("\\.[0-9]*", "", temp$ensembl_gene_id) # Tidy up gene IDs
     names(temp)[1:length(dds_relevel@colData@listData$sample)] <- dds_relevel@colData@listData$sample
 
     df <- left_join(df, temp, by = "ensembl_gene_id")
 
-    # Move some columns around
-    df <- df %>%
-      relocate(external_gene_name, .after = ensembl_gene_id) %>%
-      relocate((ncol(df) - (length(dds_relevel@colData@listData$sample) - 1)):ncol(df), .after = baseMean)
-
     # Order data for padj
     df <- df[order(df$padj), ]
 
-    # Add column with just contrast name
-    df <- df %>%
-      mutate(contrast_name = comparison, .before = 1)
-
     # Sheet title can be max 31 characters
-    # Add column with contrast name and change it to a number (counter)
+    # Change column with contrast name and change it to a number (counter) if too long
+    if (nchar(comparison) > 31) {
+      # change names to number
+      comparison <- c
+    }
     df <- df %>%
       mutate(contrast_name = comparison, .before = 1)
 
