@@ -1,9 +1,9 @@
 rule fastqc:
     input:
-        "reads/{sample}{end}.fastq.gz"
+        "results/trimmed/{sample}_{end}.fq.gz"
     output:
-        html="results/qc/fastqc/{sample}{end}.html",
-        zip="results/qc/fastqc/{sample}{end}_fastqc.zip"
+        html="results/qc/fastqc/{sample}_{end}.html",
+        zip="results/qc/fastqc/{sample}_{end}_fastqc.zip"
     params:
         extra = "--quiet"
     log:
@@ -13,12 +13,12 @@ rule fastqc:
         runtime=config["resources"]["fastqc"]["time"],
         mem_mb = 2048,
     wrapper:
-        "v3.4.0/bio/fastqc"
+        f"{wrapper_version}/bio/fastqc"
 
 
 rule multiqc:
         input:
-            expand("results/qc/fastqc/{sample}{end}_fastqc.zip", sample=SAMPLES, end=["_R1_001","_R2_001"])
+            expand("results/qc/fastqc/{sample}_{end}_fastqc.zip", sample=SAMPLES, end=["R1","R2"])
         output:
             "results/qc/multiqc/multiqc.html",
         params:
