@@ -3,14 +3,24 @@ import datetime
 include: "scripts/general_functions.smk"
 from scripts.resources import Resources
 from snakemake.utils import min_version, validate
+from snakemake.logging import logger
 
 report: "report/workflow.rst"
 
+# Workflow version
+VERSION = "v0.7.0"
+
 # Set minimum snakemake version
-min_version("7.24.0")
+min_version("8.12.0")
 
 # Wrapper version
-wrapper_version = "v3.7.0"
+wrapper_version = "v3.12.0"
+
+logger.info(f"Workflow version: {VERSION}")
+logger.info(f"Wrapper version: {wrapper_version}")
+
+# Define Docker container for Apptainer usage
+containerized: f"docker://niekwit/rna-seq-salmon-deseq2:{VERSION}"
 
 # Load and validate config file
 configfile: "config/config.yml"
