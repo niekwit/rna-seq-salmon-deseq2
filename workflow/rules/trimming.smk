@@ -14,6 +14,6 @@ rule trim_galore_pe:
     log:
         "logs/trim_galore/{sample}.log",
     wrapper:
-        f"{wrapper_version}/bio/trim_galore/pe"
+        "v4.3.0/bio/trim_galore/pe"
 
         
