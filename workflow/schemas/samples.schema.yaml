@@ -1,18 +1,19 @@
 $schema: "http://json-schema.org/draft-06/schema#"
 
 description: Samples configuration file
+type: object
 properties:
   sample:
     type: string
-    pattern: "^[\w\d_]+_[\d]+$"
+    pattern: "^[\\w\\d_]+_[\\d]+$"
     description: sample name/identifier
   genotype:
     type: string
-    pattern: "^[\w\d_]+$"
+    pattern: "^[\\w\\d_]+$"
     description: sample genotype
   treatment:
     type: string
-    pattern: "^[\w\d_]+$"
+    pattern: "^[\\w\\d_]+$"
     description: sample treatment
   reference:
     type: string
