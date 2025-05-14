@@ -3,9 +3,9 @@ gencode_genome_build: 44
 fdr_cutoff: 0.05 # adj p value cut off for volcano plots
 fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
 salmon-quant: 
-  extra_params: "" # additional arguments to pass to Salmon
+  extra_params: "--gcBias" # additional arguments to pass to Salmon
 salmon-index:
-  extra_params: "--gencode --gcBias"
+  extra_params: "--gencode"
 deseq2:
   # custom model for DESeq2
   design: "" 
