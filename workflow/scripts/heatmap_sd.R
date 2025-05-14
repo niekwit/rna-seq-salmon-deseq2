@@ -17,7 +17,7 @@ if (genome == "test") {
   # For data set with few genes
   # https://support.bioconductor.org/p/98634/
   dds <- estimateSizeFactors(dds)
-  rows <- sum( rowMeans( counts(dds, normalized = TRUE)) > 5 )
+  rows <- sum(rowMeans(counts(dds, normalized = TRUE)) > 5)
   vsd <- vst(dds, nsub = rows)
 } else {
   vsd <- vst(dds, blind = FALSE)
@@ -30,9 +30,7 @@ if (length(unique(batches)) > 1) {
   # Remove batch variation with limma
   mat <- assay(vsd)
   mm <- model.matrix(~comb, colData(vsd))
-  mat <- limma::removeBatchEffect(mat, 
-                                  batch = vsd$batch, 
-                                  design = mm)
+  mat <- limma::removeBatchEffect(mat, batch = vsd$batch, design = mm)
   assay(vsd) <- mat
 }
 
@@ -49,10 +47,12 @@ colours <- colorRampPalette(rev(brewer.pal(9, "Greens")))(255)
 
 # Save heatmap
 pdf(snakemake@output[[1]])
-pheatmap(sampleDistMatrix,
-         clustering_distance_rows = sampleDists,
-         clustering_distance_cols = sampleDists,
-         col = colours)
+pheatmap(
+  sampleDistMatrix,
+  clustering_distance_rows = sampleDists,
+  clustering_distance_cols = sampleDists,
+  col = colours
+)
 dev.off()
 
 
