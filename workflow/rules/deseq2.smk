@@ -3,7 +3,6 @@ rule deseq2:
         salmon=expand("results/salmon/{sample}/quant.sf", sample=SAMPLES),
         gtf=resources.gtf,
     output:
-        xlsx=report("results/deseq2/deseq2.xlsx", caption="../report/deseq2.rst", category="Differential Expression Analysis"),
         csv=report(expand("results/deseq2/{comparison}.csv", comparison=COMPARISONS), caption="../report/deseq2.rst", category="Differential Expression Analysis"),
         rdata="results/deseq2/dds.RData"
     params:
