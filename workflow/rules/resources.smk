@@ -1,14 +1,14 @@
 rule get_genome_fasta:
     output:
-        resources.fasta,
+        temp(resources.fasta),
     retries: 3
     params:
         url=resources.fa_url,
     log:
-        "logs/resources/get_genome_fasta.log"
+        "logs/resources/get_genome_fasta.log",
     threads: 1
-    resources: 
-        runtime=15
+    resources:
+        runtime=15,
     conda:
         "../envs/resources.yml"
     script:
@@ -16,21 +16,21 @@ rule get_genome_fasta:
 
 
 use rule get_genome_fasta as get_trx_fasta with:
-        output:
-            resources.trx_fasta,
-        params:
-            url=resources.trx_fa_url,
-        log:
-            "logs/resources/get_gtf.log"
+    output:
+        temp(resources.trx_fasta),
+    params:
+        url=resources.trx_fa_url,
+    log:
+        "logs/resources/get_gtf.log",
 
 
 use rule get_genome_fasta as get_gtf with:
-        output:
-            resources.gtf,
-        params:
-            url=resources.gtf_url,
-        log:
-            "logs/resources/get_gtf.log"
+    output:
+        temp(resources.gtf),
+    params:
+        url=resources.gtf_url,
+    log:
+        "logs/resources/get_gtf.log",
 
 
 rule salmon_decoy:
@@ -41,10 +41,10 @@ rule salmon_decoy:
         gentrome=temp("resources/gentrome.fasta"),
         decoys="resources/decoys.txt",
     threads: config["resources"]["mapping"]["cpu"]
-    resources: 
-        runtime=config["resources"]["mapping"]["time"]
+    resources:
+        runtime=config["resources"]["mapping"]["time"],
     log:
-        "logs/salmon/decoys.log"
+        "logs/salmon/decoys.log",
     wrapper:
         "v5.9.0/bio/salmon/decoys"
 
@@ -54,29 +54,31 @@ rule salmon_index:
         sequences="resources/gentrome.fasta",
         decoys="resources/decoys.txt",
     output:
-        multiext(
-            f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
-            "complete_ref_lens.bin",
-            "ctable.bin",
-            "ctg_offsets.bin",
-            "duplicate_clusters.tsv",
-            "info.json",
-            "mphf.bin",
-            "pos.bin",
-            "pre_indexing.log",
-            "rank.bin",
-            "refAccumLengths.bin",
-            "ref_indexing.log",
-            "reflengths.bin",
-            "refseq.bin",
-            "seq.bin",
-            "versionInfo.json",
+        temp(
+            multiext(
+                f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
+                "complete_ref_lens.bin",
+                "ctable.bin",
+                "ctg_offsets.bin",
+                "duplicate_clusters.tsv",
+                "info.json",
+                "mphf.bin",
+                "pos.bin",
+                "pre_indexing.log",
+                "rank.bin",
+                "refAccumLengths.bin",
+                "ref_indexing.log",
+                "reflengths.bin",
+                "refseq.bin",
+                "seq.bin",
+                "versionInfo.json",
+            )
         ),
     log:
-        "logs/salmon/index.log"
+        "logs/salmon/index.log",
     threads: config["resources"]["mapping"]["cpu"] * 3
-    resources: 
-        runtime=config["resources"]["mapping"]["time"]
+    resources:
+        runtime=config["resources"]["mapping"]["time"],
     params:
         # optional parameters
         extra=config["salmon-index"]["extra_params"],
