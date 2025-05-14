@@ -5,7 +5,7 @@ fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
 salmon-quant: 
   extra_params: "" # additional arguments to pass to Salmon
 salmon-index:
-  extra_params: "--gencode"
+  extra_params: "--gencode --gcBias"
 deseq2:
   # custom model for DESeq2
   design: "" 
