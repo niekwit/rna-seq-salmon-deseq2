@@ -11,6 +11,7 @@ class Resources:
         self.build = str(build)
         
         human_assembly_version = {
+            47: "p14",
             46: "p14",
             45: "p14",
             44: "p14",
@@ -36,6 +37,7 @@ class Resources:
         }
         
         mouse_assembly_version = {
+            "M36": "GRCm39",
             "M35": "GRCm39",
             "M34": "GRCm39",
             "M33": "GRCm39",

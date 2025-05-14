@@ -46,7 +46,7 @@ rule salmon_decoy:
     log:
         "logs/salmon/decoys.log"
     wrapper:
-        "v4.3.0/bio/salmon/decoys"
+        "v5.9.0/bio/salmon/decoys"
 
 
 rule salmon_index:
@@ -81,4 +81,4 @@ rule salmon_index:
         # optional parameters
         extra=config["salmon-index"]["extra_params"],
     wrapper:
-        "v4.3.0/bio/salmon/index"
+        "v5.9.0/bio/salmon/index"

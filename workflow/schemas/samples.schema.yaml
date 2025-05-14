@@ -5,7 +5,7 @@ type: object
 properties:
   sample:
     type: string
-    pattern: "^[\\w\\d_]+_[\\d]+$"
+    pattern: "^[\\w\\d_]+$"
     description: sample name/identifier
   genotype:
     type: string
