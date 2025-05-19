@@ -8,3 +8,5 @@ dependencies:
   - multiqc=1.20
   - pigz=2.8
   - salmon=1.10.2
+  - sortmerna=4.3.7
+  - seqtk=r82
