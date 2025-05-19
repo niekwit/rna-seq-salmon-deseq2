@@ -1,11 +1,8 @@
-import os
-import datetime
 include: "scripts/general_functions.smk"
-from scripts.resources import Resources
-from snakemake.utils import min_version, validate
-from snakemake.logging import logger
+
 
 report: "report/workflow.rst"
+
 
 # Workflow version
 VERSION = "v0.7.2"
@@ -19,11 +16,15 @@ wrapper_version = "v5.9.0"
 logger.info(f"Workflow version: {VERSION}")
 logger.info(f"Wrapper version: {wrapper_version}")
 
+
 # Define Docker container for Apptainer usage
 containerized: f"docker://niekwit/rna-seq-salmon-deseq2:{VERSION}"
 
+
 # Load and validate config file
 configfile: "config/config.yml"
+
+
 validate(config, "schemas/config.schema.yaml")
 
 # Load and validate sample info
@@ -37,30 +38,42 @@ resources = Resources(config["genome"], config["gencode_genome_build"])
 SAMPLES = samples()
 COMPARISONS = comparisons()
 
+
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
+include: "rules/sortmerna.smk"
 include: "rules/mapping.smk"
 include: "rules/deseq2.smk"
 include: "rules/plotting.smk"
 
+
 # Target rule
 rule all:
-    input: 
-        targets()
+    input:
+        targets(),
+
 
 # Rules to be run on login node (very small jobs)
-localrules: all, get_genome_fasta, get_trx_fasta, get_gtf
+localrules:
+    all,
+    get_genome_fasta,
+    get_trx_fasta,
+    get_gtf,
+
 
 # Save snakemake terminal output to log file
 time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 snake_log = f"logs/snakemake/{time}_snakemake.log"
 os.makedirs("logs/snakemake", exist_ok=True)
 
-onsuccess: 
+
+onsuccess:
     shell("cp -v {log} {snake_log}")
     print("Analysis finished successfully!")
+
+
 onerror:
     shell("cp -v {log} {snake_log}")
     print(f"Analysis failed...\nCheck {snake_log} for details")
