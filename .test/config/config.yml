@@ -2,6 +2,12 @@ genome: test # human or mouse
 gencode_genome_build: 44
 fdr_cutoff: 0.05 # adj p value cut off for volcano plots
 fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
+sortmerna: 
+  run: True # Use SortMeRNA for rRNA removal
+  index:
+    database: fast_db # options: default_db, fast_db, sensitive_db and sensitive_db_rfam_seeds
+    extra_params: "" # additional arguments to pass to SortMeRNA indexing
+  extra_params: "" # additional arguments to pass to SortMeRNA
 salmon-quant: 
   extra_params: "--gcBias" # additional arguments to pass to Salmon
 salmon-index:
