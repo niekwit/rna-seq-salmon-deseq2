@@ -1,8 +1,12 @@
 genome: human # human or mouse
 gencode_genome_build: 44
 sortmerna: 
-  run: False # Use SortMeRNA for rRNA removal
+  # SortMeRNA is used for rRNA removal
+  # Warning: This will slow down the pipeline significantly
+  run: False 
   index:
+    # See https://github.com/sortmerna/sortmerna?tab=readme-ov-file#databases
+    # for more information on SortMeRNA databases
     database: default_db # options: default_db, fast_db, sensitive_db and sensitive_db_rfam_seeds
     extra_params: "" # additional arguments to pass to SortMeRNA indexing
   extra_params: "" # additional arguments to pass to SortMeRNA
