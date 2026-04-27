@@ -2,10 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
 
 jobs:
   Formatting:
@@ -23,38 +22,35 @@ jobs:
   Linting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--lint"
+      - uses: actions/checkout@v2
+      - name: Lint workflow
+        uses: snakemake/snakemake-github-action@v2.1.2
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          snakemake-version: "8.25.5"
+          args: "--lint"
 
   Testing:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - Linting
       - Formatting
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Test workflow
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs --cores 3 --conda-cleanup-pkgs cache"
-    
-    - name: Test report
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--report report.zip"
+      - name: Test workflow
+        uses: snakemake/snakemake-github-action@v2.1.2
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          snakemake-version: "8.25.5"
+          args: "--use-conda --show-failed-logs --cores 3 --conda-cleanup-pkgs cache"
 
-    #- name: Upload coverage reports to Codecov
-    #  run: |
-    #    curl -Os https://uploader.codecov.io/latest/linux/codecov
-    #    chmod +x codecov
-    #    ./codecov -t ${CODECOV_TOKEN}
+      - name: Test report
+        uses: snakemake/snakemake-github-action@v2.1.2
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          snakemake-version: "8.25.5"
+          args: "--report report.zip"

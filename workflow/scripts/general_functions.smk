@@ -1,13 +1,18 @@
-import pandas as pd
 import os
+import datetime
+import pandas as pd
+from scripts.resources import Resources
+from snakemake.utils import min_version, validate
+from snakemake.logging import logger
+
 
 def targets():
     targets = [
+        "results/qc/multiqc/multiqc.html",
         "results/plots/mapping_rates.pdf",
         "results/plots/pca.pdf",
         "results/plots/sample_distance.pdf",
         expand("results/plots/volcano/{comparison}.pdf", comparison=COMPARISONS),
-        "results/qc/multiqc/multiqc.html",
     ]
     return targets
 
@@ -23,8 +28,8 @@ def samples():
     # Check if sample names match file names
     not_found = []
     for sample in SAMPLES:
-        r1= f"reads/{sample}_R1_001.fastq.gz"
-        r2= f"reads/{sample}_R2_001.fastq.gz"
+        r1 = f"reads/{sample}_R1_001.fastq.gz"
+        r2 = f"reads/{sample}_R2_001.fastq.gz"
         if not os.path.isfile(r1):
             not_found.append(r1)
         if not os.path.isfile(r2):
@@ -40,34 +45,67 @@ def comparisons():
     """
     Create pairwise comparison strings from samples.csv
     """
-    if len(sample_info["genotype"].unique()) > 1 and len(sample_info["treatment"].unique()) > 1:
+    if (
+        len(sample_info["genotype"].unique()) > 1
+        and len(sample_info["treatment"].unique()) > 1
+    ):
         # Combine genotype and treatment to get unique conditions
-        sample_info["condition"] = sample_info[["genotype","treatment"]].agg('_'.join, axis=1)
+        sample_info["condition"] = sample_info[["genotype", "treatment"]].agg(
+            "_".join, axis=1
+        )
 
         # Get reference conditions
-        reference_conditions = sample_info[sample_info["reference"] == "yes"]["condition"].unique().tolist()
-        
-        # Get test conditions
-        test_conditions = sample_info[sample_info["reference"] != "yes"]["condition"].unique().tolist()
-    elif len(sample_info["genotype"].unique()) > 1 and len(sample_info["treatment"].unique()) == 1:
-        # Get reference conditions
-        reference_conditions = sample_info[sample_info["reference"] == "yes"]["genotype"].unique().tolist()
+        reference_conditions = (
+            sample_info[sample_info["reference"] == "yes"]["condition"]
+            .unique()
+            .tolist()
+        )
 
         # Get test conditions
-        test_conditions = sample_info[sample_info["reference"] != "yes"]["genotype"].unique().tolist()
-    elif len(sample_info["genotype"].unique()) == 1 and len(sample_info["treatment"].unique()) > 1:
+        test_conditions = (
+            sample_info[sample_info["reference"] != "yes"]["condition"]
+            .unique()
+            .tolist()
+        )
+    elif (
+        len(sample_info["genotype"].unique()) > 1
+        and len(sample_info["treatment"].unique()) == 1
+    ):
         # Get reference conditions
-        reference_conditions = sample_info[sample_info["reference"] == "yes"]["treatment"].unique().tolist()
+        reference_conditions = (
+            sample_info[sample_info["reference"] == "yes"]["genotype"].unique().tolist()
+        )
 
         # Get test conditions
-        test_conditions = sample_info[sample_info["reference"] != "yes"]["treatment"].unique().tolist()
+        test_conditions = (
+            sample_info[sample_info["reference"] != "yes"]["genotype"].unique().tolist()
+        )
+    elif (
+        len(sample_info["genotype"].unique()) == 1
+        and len(sample_info["treatment"].unique()) > 1
+    ):
+        # Get reference conditions
+        reference_conditions = (
+            sample_info[sample_info["reference"] == "yes"]["treatment"]
+            .unique()
+            .tolist()
+        )
+
+        # Get test conditions
+        test_conditions = (
+            sample_info[sample_info["reference"] != "yes"]["treatment"]
+            .unique()
+            .tolist()
+        )
     else:
-        raise ValueError("Cannot create comparisons with only one treatment and one genotype...")
-    
+        raise ValueError(
+            "Cannot create comparisons with only one treatment and one genotype..."
+        )
+
     # Create strings for comparisons
     comparisons = []
     for test in test_conditions:
         for ref in reference_conditions:
             comparisons.append(f"{test}_vs_{ref}")
-    
+
     return comparisons
