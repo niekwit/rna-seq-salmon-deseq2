@@ -1,9 +1,7 @@
-input_dir = salmon_quant_input_dir()
-
 rule salmon_quant:
     input:
-        r1=f"results/{input_dir}/{{sample}}_R1.fq.gz",
-        r2=f"results/{input_dir}/{{sample}}_R2.fq.gz",
+        r1="results/trimmed/{sample}_R1.fq.gz",
+        r2="results/trimmed/{sample}_R2.fq.gz",
         index=multiext(
             f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
             "complete_ref_lens.bin",
