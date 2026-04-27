@@ -5,13 +5,14 @@ from scripts.resources import Resources
 from snakemake.utils import min_version, validate
 from snakemake.logging import logger
 
+
 def targets():
     targets = [
+        "results/qc/multiqc/multiqc.html",
         "results/plots/mapping_rates.pdf",
         "results/plots/pca.pdf",
         "results/plots/sample_distance.pdf",
         expand("results/plots/volcano/{comparison}.pdf", comparison=COMPARISONS),
-        "results/qc/multiqc/multiqc.html",
     ]
     return targets
 
@@ -109,12 +110,3 @@ def comparisons():
 
     return comparisons
 
-
-def salmon_quant_input_dir():
-    """
-    Generate string for input for salmon_quant rule
-    """
-    if config["sortmerna"]["run"]:
-        return "seqtk"
-    else:
-        return "trimmed"
