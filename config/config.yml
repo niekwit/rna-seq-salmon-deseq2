@@ -1,24 +1,14 @@
 genome: human # human or mouse
 gencode_genome_build: 44
-sortmerna: 
-  # SortMeRNA is used for rRNA removal
-  # Warning: This will slow down the pipeline significantly
-  run: False 
-  index:
-    # See https://github.com/sortmerna/sortmerna?tab=readme-ov-file#databases
-    # for more information on SortMeRNA databases
-    database: default_db # options: default_db, fast_db, sensitive_db and sensitive_db_rfam_seeds
-    extra_params: "" # additional arguments to pass to SortMeRNA indexing
-  extra_params: "" # additional arguments to pass to SortMeRNA
 fdr_cutoff: 0.05 # adj p value cut off for volcano plots
 fc_cutoff: 0.5 # log2 fold change cut off for volcano plots
-salmon-quant: 
+salmon-quant:
   extra_params: "--gcBias" # additional arguments to pass to Salmon
 salmon-index:
   extra_params: "--gencode"
 deseq2:
   # custom model for DESeq2
-  design: "" 
+  design: ""
 resources: # computing resources
   trim:
     cpu: 8
@@ -31,7 +21,7 @@ resources: # computing resources
     time: 120
   deseq2:
     cpu: 6
-    time: 60 
+    time: 60
   plotting:
     cpu: 2
     time: 20
