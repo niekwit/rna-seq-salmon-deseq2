@@ -157,12 +157,7 @@ for (r in seq_along(references)) {
     # Order data for padj
     df <- df[order(df$padj), ]
 
-    # Sheet title can be max 31 characters
     # Change column with contrast name and change it to a number (counter) if too long
-    if (nchar(comparison) > 31) {
-      # change names to number
-      comparison <- c
-    }
     df <- df %>%
       mutate(contrast_name = comparison, .before = 1)
 
