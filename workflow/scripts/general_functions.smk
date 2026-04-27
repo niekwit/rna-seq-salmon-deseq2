@@ -109,4 +109,3 @@ def comparisons():
             comparisons.append(f"{test}_vs_{ref}")
 
     return comparisons
-

@@ -6,8 +6,8 @@ rule trim_galore_pe:
         report_fwd="logs/trim_galore/{sample}_R1_trimming_report.txt",
         fasta_rev=temp("results/trimmed/{sample}_R2.fq.gz"),
         report_rev="logs/trim_galore/{sample}_R2_trimming_report.txt",
-    threads: config["resources"]["trim"]["cpu"],
-    resources: 
+    threads: config["resources"]["trim"]["cpu"]
+    resources:
         runtime=config["resources"]["trim"]["time"],
     params:
         extra="--illumina -q 20",
@@ -15,5 +15,3 @@ rule trim_galore_pe:
         "logs/trim_galore/{sample}.log",
     wrapper:
         "v5.9.0/bio/trim_galore/pe"
-
-        

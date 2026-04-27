@@ -27,12 +27,10 @@ rule salmon_quant:
         "logs/salmon/quant-{sample}.log",
     params:
         # optional parameters
-        libtype="A", # automatic detection of library type
+        libtype="A",  # automatic detection of library type
         extra=config["salmon-quant"]["extra_params"],
-    threads: config["resources"]["mapping"]["cpu"],
+    threads: config["resources"]["mapping"]["cpu"]
     resources:
         runtime=config["resources"]["mapping"]["time"],
     wrapper:
         "v5.9.0/bio/salmon/quant"
-
-
