@@ -9,23 +9,22 @@ properties:
     type: string
     enum: ["human", "mouse", "test"]
     description: Ensembl genome
-  
+
   gencode_genome_build:
-    type: integer
-    minimum: 1
+    type: string
     description: Gencode genome build
-  
+
   fdr_cutoff:
     type: number
     minimum: 0
     maximum: 1
     description: Adj p value cut off for volcano plots
-  
+
   fc_cutoff:
     type: number
     minimum: 0
     description: log2 fold change cut off for volcano plots
-  
+
   deseq2:
     type: object
     properties:
@@ -34,11 +33,11 @@ properties:
         description: custom model for DESeq2
 
   required:
-  - genome
-  - gencode_genome_build
-  - fdr_cutoff
-  - fc_cutoff
-  - deseq2
+    - genome
+    - gencode_genome_build
+    - fdr_cutoff
+    - fc_cutoff
+    - deseq2
 
   resources:
     type: object
@@ -88,10 +87,10 @@ properties:
           time:
             type: integer
             minimum: 10
-    
+
       required:
-      - trim
-      - fastqc
-      - mapping
-      - deseq2
-      - plotting
+        - trim
+        - fastqc
+        - mapping
+        - deseq2
+        - plotting
