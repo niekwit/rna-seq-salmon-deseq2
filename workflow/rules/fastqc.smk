@@ -22,7 +22,7 @@ rule multiqc:
         output:
             "results/qc/multiqc/multiqc.html",
         params:
-            dir=lambda wildcards, output: os.path.dirname(output[0]),
+            outdir=lambda wildcards, output: os.path.dirname(output[0]),
             extra="",  # Optional: extra parameters for multiqc
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
@@ -35,7 +35,7 @@ rule multiqc:
         shell:
             "multiqc " 
             "--force "
-            "--outdir {params.dir} "
+            "--outdir {params.outdir} "
             "-n multiqc.html "
             "{params.extra} "
             "{input} "
