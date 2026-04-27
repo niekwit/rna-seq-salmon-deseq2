@@ -5,16 +5,12 @@ report: "report/workflow.rst"
 
 
 # Workflow version
-VERSION = "v0.7.2"
+VERSION = "v0.7.3"
 
 # Set minimum snakemake version
 min_version("8.25.5")
 
-# Wrapper version
-wrapper_version = "v5.9.0"
-
 logger.info(f"Workflow version: {VERSION}")
-logger.info(f"Wrapper version: {wrapper_version}")
 
 
 # Define Docker container for Apptainer usage
