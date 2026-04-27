@@ -11,7 +11,7 @@ properties:
     description: Ensembl genome
 
   gencode_genome_build:
-    type: string
+    type: [string, integer]
     description: Gencode genome build
 
   fdr_cutoff:

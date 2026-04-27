@@ -43,7 +43,6 @@ COMPARISONS = comparisons()
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
-include: "rules/sortmerna.smk"
 include: "rules/mapping.smk"
 include: "rules/deseq2.smk"
 include: "rules/plotting.smk"
