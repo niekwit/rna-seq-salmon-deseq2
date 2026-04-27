@@ -54,8 +54,3 @@ pheatmap(
   col = colours
 )
 dev.off()
-
-
-# Close redirection of output/messages
-sink(log, type = "output")
-sink(log, type = "message")
