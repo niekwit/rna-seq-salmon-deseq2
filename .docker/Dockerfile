@@ -1,6 +1,6 @@
 FROM condaforge/miniforge3:latest
 LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="7cdfd6c76c40bf175ef3dc7bb9968eb063600767bcbf0d4c7c1ed8c5e8f6d6f0"
+LABEL io.github.snakemake.conda_env_hash="d795e95773c4a36be2c442be00a8813c109cabff73d826ae6ddeea8e81f8a295"
 
 # Step 2: Retrieve conda environments
 
@@ -95,7 +95,7 @@ COPY workflow/envs/deseq2.yml /conda-envs/3da416eb407c3b71fca6864db70af3f3/envir
 
 # Conda environment:
 #   source: workflow/envs/resources.yml
-#   prefix: /conda-envs/68f7ed58a44f30e5397d748bae682d62
+#   prefix: /conda-envs/6ba2191439dbea019ce2891b86d87ba1
 #   name: deseq2
 #   channels:
 #     - conda-forge
@@ -103,12 +103,10 @@ COPY workflow/envs/deseq2.yml /conda-envs/3da416eb407c3b71fca6864db70af3f3/envir
 #     - defaults
 #   dependencies:
 #     - python=3.11
-#     - multiqc=1.20
+#     - multiqc=1.26
 #     - pigz=2.8
-#     - salmon=1.10.2
-#     - seqtk=r82
-RUN mkdir -p /conda-envs/68f7ed58a44f30e5397d748bae682d62
-COPY workflow/envs/resources.yml /conda-envs/68f7ed58a44f30e5397d748bae682d62/environment.yaml
+RUN mkdir -p /conda-envs/6ba2191439dbea019ce2891b86d87ba1
+COPY workflow/envs/resources.yml /conda-envs/6ba2191439dbea019ce2891b86d87ba1/environment.yaml
 
 # Step 3: Generate conda environments
 
@@ -118,5 +116,5 @@ RUN conda env create --prefix /conda-envs/24b8923f8e4abe077ffe95b01bfc1652 --fil
     conda env create --prefix /conda-envs/9805e9e9b1e30e40480f1859d4dc652e --file /conda-envs/9805e9e9b1e30e40480f1859d4dc652e/environment.yaml && \
     conda env create --prefix /conda-envs/975a4a78cc02737b050b54b2645b9ecc --file /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml && \
     conda env create --prefix /conda-envs/3da416eb407c3b71fca6864db70af3f3 --file /conda-envs/3da416eb407c3b71fca6864db70af3f3/environment.yaml && \
-    conda env create --prefix /conda-envs/68f7ed58a44f30e5397d748bae682d62 --file /conda-envs/68f7ed58a44f30e5397d748bae682d62/environment.yaml && \
+    conda env create --prefix /conda-envs/6ba2191439dbea019ce2891b86d87ba1 --file /conda-envs/6ba2191439dbea019ce2891b86d87ba1/environment.yaml && \
     conda clean --all -y
