@@ -61,9 +61,9 @@ def comparisons():
             .tolist()
         )
 
-        # Get test conditions
-        test_conditions = (
-            sample_info[sample_info["reference"] != "yes"]["condition"]
+        # Get all conditions
+        all_conditions = (
+            sample_info["condition"]
             .unique()
             .tolist()
         )
@@ -76,10 +76,9 @@ def comparisons():
             sample_info[sample_info["reference"] == "yes"]["genotype"].unique().tolist()
         )
 
-        # Get test conditions
-        test_conditions = (
-            sample_info[sample_info["reference"] != "yes"]["genotype"].unique().tolist()
-        )
+        # Get all conditions
+        all_conditions = sample_info["genotype"].unique().tolist()
+
     elif (
         len(sample_info["genotype"].unique()) == 1
         and len(sample_info["treatment"].unique()) > 1
@@ -91,12 +90,8 @@ def comparisons():
             .tolist()
         )
 
-        # Get test conditions
-        test_conditions = (
-            sample_info[sample_info["reference"] != "yes"]["treatment"]
-            .unique()
-            .tolist()
-        )
+        # Get all conditions
+        all_conditions = sample_info["treatment"].unique().tolist()
     else:
         raise ValueError(
             "Cannot create comparisons with only one treatment and one genotype..."
@@ -104,8 +99,14 @@ def comparisons():
 
     # Create strings for comparisons
     comparisons = []
-    for test in test_conditions:
+    for test in all_conditions:
         for ref in reference_conditions:
-            comparisons.append(f"{test}_vs_{ref}")
+            if test != ref:
+                comparisons.append(f"{test}_vs_{ref}")
+
+    if len(comparisons) == 0:
+        raise ValueError(
+            "No comparisons could be created — check that samples.csv has 'reference' set to 'yes' for at least one sample."
+        )
 
     return comparisons
