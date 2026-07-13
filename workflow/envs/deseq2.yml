@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - jq
   - r-base=4.4
   - r-tidyverse=2.0.0
   - r-rcolorbrewer=1.1_3
