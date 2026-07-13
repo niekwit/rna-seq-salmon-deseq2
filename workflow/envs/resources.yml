@@ -5,7 +5,5 @@ channels:
   - defaults
 dependencies:
   - python=3.11
-  - multiqc=1.20
+  - multiqc=1.26
   - pigz=2.8
-  - salmon=1.10.2
-  - seqtk=r82
