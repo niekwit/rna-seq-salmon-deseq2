@@ -1,6 +1,6 @@
 # Snakemake workflow: `rna-seq-salmon-deseq2`
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥8.13.0-brightgreen.svg)](https://snakemake.github.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥8.25.5-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10139567.svg)](https://doi.org/10.5281/zenodo.10139567)
 
@@ -34,7 +34,9 @@ Meta information of the samples are described in samples.csv:
 | Control_Hypoxia_2 | WT       | Hypoxia   | no        | 1     |
 
 > [!IMPORTANT]
-> The sample names should correspond to the files name, eg. Control_1_R1_001.fastq.gz and Control_1_R2_001.fastqz for sample Control_1.
+> The sample names should correspond to the files name, eg. Control_1_R1_001.fastq.gz and Control_1_R2_001.fastq.gz for sample Control_1.
+
+The `batch` column is optional; if omitted, all samples are treated as a single batch. At least one sample per genotype/treatment group being compared must have `reference` set to `yes` — this defines the control/reference level(s) used to build the pairwise comparisons for DESeq2 and the volcano plots.
 
 Analysis settings and resource
 
@@ -67,3 +69,45 @@ resources: # computing resources
     cpu: 2
     time: 20
 ```
+
+`genome`/`gencode_genome_build` select which Ensembl/Gencode reference is downloaded automatically; `deseq2.design` can be left empty to use the default `~comb` (or `~batch + comb`, if a `batch` column is present) design, or set to a custom R formula referencing the `samples.csv` columns.
+
+### Running the workflow
+
+From the main analysis directory (the one containing `config/`, `reads/`, and `workflow/`), first do a dry run to check that the config and sample sheet are valid and to see which jobs would run:
+
+```shell
+snakemake -n
+```
+
+Then run the workflow for real. Reference genome/transcriptome/GTF files are downloaded automatically based on `genome`/`gencode_genome_build`, so no extra setup is needed there.
+
+- **Recommended**: use the prebuilt container (see [Software dependencies](#software-dependencies)), which already has every rule's Conda environment baked in, so no environments need to be solved/built locally:
+
+  ```shell
+  snakemake --cores <N> --software-deployment-method apptainer conda
+  ```
+
+- **Alternative**: build the Conda environments locally (no Apptainer required), as done in this workflow's CI:
+
+  ```shell
+  snakemake --cores <N> --software-deployment-method conda
+  ```
+
+Replace `<N>` with the number of CPU cores to make available; individual rules will be scaled down to `<N>` if they request more threads than that.
+
+Once finished, an HTML summary report (including QC metrics, PCA/sample-distance plots, and volcano plots) can be generated with:
+
+```shell
+snakemake --report report.zip
+```
+
+#### Output
+
+Results are written to `results/`, notably:
+
+- `results/qc/multiqc/multiqc.html` – aggregated QC report
+- `results/salmon/{sample}/quant.sf` – per-sample Salmon quantifications
+- `results/deseq2/{comparison}.csv` – DESeq2 results per pairwise comparison
+- `results/plots/pca.pdf`, `results/plots/sample_distance.pdf`, `results/plots/mapping_rates.pdf`
+- `results/plots/volcano/{comparison}.pdf` – volcano plot per comparison

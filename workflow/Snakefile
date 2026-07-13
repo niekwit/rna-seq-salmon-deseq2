@@ -5,7 +5,7 @@ report: "report/workflow.rst"
 
 
 # Workflow version
-VERSION = "v0.7.3"
+VERSION = "v0.7.4"
 
 # Set minimum snakemake version
 min_version("8.25.5")
@@ -33,7 +33,6 @@ resources = Resources(config["genome"], config["gencode_genome_build"])
 # Get wildcard values
 SAMPLES = samples()
 COMPARISONS = comparisons()
-
 
 # Import rules
 include: "rules/fastqc.smk"

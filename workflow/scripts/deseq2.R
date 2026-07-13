@@ -92,7 +92,8 @@ references <- unique(samples[samples$reference == "yes", ]$comb)
 # List to store data from each contrast
 resList <- list()
 
-# For each reference sample, perform pairwise comparisons with all the other samples
+# For each reference sample, perform pairwise
+# comparisons with all the other samples
 for (r in seq_along(references)) {
   cat(paste0(
     "Setting reference level: ",
@@ -152,6 +153,13 @@ for (r in seq_along(references)) {
       1:length(dds_relevel@colData@listData$sample)
     ] <- dds_relevel@colData@listData$sample
 
+    # Remove columns that are not part of the current comparison
+    temp <- temp %>%
+      select(
+        ensembl_gene_id,
+        all_of(samples[samples$comb %in% comparison, ]$sample)
+      )
+
     df <- left_join(df, temp, by = "ensembl_gene_id")
 
     # Order data for padj
@@ -175,13 +183,4 @@ names(resList) <- names
 # Write each df to separate csv file
 for (i in seq(resList)) {
   write_csv(resList[[i]], paste0("results/deseq2/", names(resList)[i], ".csv"))
-}
-
-# Check if any df name is longer than 31 characters (not supported by openxlsx)
-if (any(nchar(names) > 31)) {
-  # change names to numbers
-  names <- seq_along(length(names))
-
-  # Rename data frames in list
-  names(resList) <- names
 }
