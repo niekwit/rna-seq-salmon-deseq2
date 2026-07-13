@@ -154,10 +154,11 @@ for (r in seq_along(references)) {
     ] <- dds_relevel@colData@listData$sample
 
     # Remove columns that are not part of the current comparison
+    comparison_groups <- str_split(comparison, "_vs_")[[1]]
     temp <- temp %>%
-      select(
+      dplyr::select(
         ensembl_gene_id,
-        all_of(samples[samples$comb %in% comparison, ]$sample)
+        all_of(samples[samples$comb %in% comparison_groups, ]$sample)
       )
 
     df <- left_join(df, temp, by = "ensembl_gene_id")
