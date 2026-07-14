@@ -29,3 +29,38 @@ resources: # computing resources
   plotting:
     cpu: 2
     time: 20
+
+# Integration with NGS Tracker for workflow registration and file attachment
+# https://github.com/niekwit/ngs-tracker
+ngs_tracker:
+  enabled: false # set to false to skip registration
+
+  # Connection
+  base_url: "http://127.0.0.1:5000/api" # change host/port if needed
+
+  # Run identity  (find project_id on the project detail page)
+  project_id: 3
+  #run_id: 1 # optional, if not provided a new run will be created
+  workflow_name: "rna-seq-salmon-deseq2"
+  workflow_tag: "v0.7.5"
+  workflow_system: "snakemake" # snakemake | nextflow | cwl | other
+  description: "ENTER YOUR TEXT HERE"
+  tags:
+    - Test
+  
+  # Files to attach — paths relative to the working directory or absolute
+  # type: config | sample_info | qc | results | mapping_rates | snakemake_log | other
+  files:
+    - path: "config/config.yml"
+      type: config
+      description: "Workflow config"
+    - path: "results/qc/multiqc/multiqc.html"
+      type: qc
+      description: "MultiQC report"
+    - path: "results/plots/mapping_rates.csv"
+      type: mapping_rates
+      description: "Salmon mapping rates"
+    - path: "results/plots/*/*.pdf"
+      type: qc
+    - path: logs/snakemake/*.log
+      type: snakemake_log
