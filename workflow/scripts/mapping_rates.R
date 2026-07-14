@@ -7,11 +7,11 @@ library(tidyverse)
 library(cowplot)
 
 # get snakemake variables
-files <- snakemake@input
+files <- snakemake@input[[1]]
 
 # create df for storing mapping rates
 df <- as.data.frame(matrix(ncol = 2, nrow = 0))
-names(df) <- c("sample", "mapping.rate")
+names(df) <- c("sample", "mapping_rate")
 
 # get sample name and mapping rates from log files
 counter <- 1
@@ -34,17 +34,17 @@ for (x in files) {
 
   # add to df
   df[counter, "sample"] <- sample
-  df[counter, "mapping.rate"] <- rate
+  df[counter, "mapping_rate"] <- rate
 
   counter <- counter + 1
 }
 
 # round values to 1 decimal
-df$mapping.rate <- as.numeric(df$mapping.rate)
-df$mapping.rate <- round(df$mapping.rate, digits = 1)
+df$mapping_rate <- as.numeric(df$mapping_rate)
+df$mapping_rate <- round(df$mapping_rate, digits = 1)
 
 # create plot
-p <- ggplot(df, aes(x = sample, y = mapping.rate)) +
+p <- ggplot(df, aes(x = sample, y = mapping_rate)) +
   geom_bar(stat = "identity", fill = "aquamarine4", colour = "black") +
   theme_cowplot(16) +
   scale_y_continuous(limits = c(0, 100)) +
@@ -54,3 +54,6 @@ p <- ggplot(df, aes(x = sample, y = mapping.rate)) +
 
 # save plot
 ggsave(snakemake@output[[1]], p)
+
+# save mapping rates to csv
+write_csv(df, snakemake@output[["csv"]])
