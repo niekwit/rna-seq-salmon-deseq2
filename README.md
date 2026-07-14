@@ -113,5 +113,56 @@ Results are written to `results/`, notably:
 - `results/qc/multiqc/multiqc.html` – aggregated QC report
 - `results/salmon/{sample}/quant.sf` – per-sample Salmon quantifications
 - `results/deseq2/{level}/{comparison}.csv` – DESeq2 results per pairwise comparison, for each configured `level` (`gene` and/or `transcript`)
-- `results/plots/{level}/pca.pdf`, `results/plots/{level}/sample_distance.pdf`, `results/plots/mapping_rates.pdf`
+- `results/plots/{level}/pca.pdf`, `results/plots/{level}/sample_distance.pdf`, `results/plots/mapping_rates.pdf`, `results/plots/mapping_rates.csv`
 - `results/plots/volcano/{level}/{comparison}.pdf` – volcano plot per comparison
+
+### NGS Tracker integration (optional)
+
+This workflow can automatically register each run with [NGS Tracker](https://github.com/niekwit/ngs-tracker) and attach key output files to it, via the `ngs_tracker` block in `config.yml`:
+
+```yaml
+ngs_tracker:
+  enabled: false # set to false to skip registration
+
+  # Connection
+  base_url: "http://127.0.0.1:5000/api" # change host/port if needed
+
+  # Run identity  (find project_id on the project detail page)
+  project_id: 3
+  #run_id: 1 # optional, if not provided a new run will be created
+  workflow_name: "rna-seq-salmon-deseq2"
+  workflow_tag: "v0.7.5"
+  workflow_system: "snakemake" # snakemake | nextflow | cwl | other
+  description: "ENTER YOUR TEXT HERE"
+  tags:
+    - Test
+
+  # Files to attach — paths relative to the working directory or absolute
+  # type: config | sample_info | qc | results | mapping_rates | snakemake_log | other
+  files:
+    - path: "config/config.yml"
+      type: config
+      description: "Workflow config"
+    - path: "results/qc/multiqc/multiqc.html"
+      type: qc
+      description: "MultiQC report"
+    - path: "results/plots/mapping_rates.csv"
+      type: mapping_rates
+      description: "Salmon mapping rates"
+    - path: "results/plots/*/*.pdf"
+      type: qc
+    - path: logs/snakemake/*.log
+      type: snakemake_log
+```
+
+| Field | Description |
+| --- | --- |
+| `enabled` | Set to `false` to skip NGS Tracker entirely — nothing is registered and no network call is made. |
+| `base_url` | URL of your NGS Tracker API instance. |
+| `project_id` | ID of the NGS Tracker project to register the run under (shown on the project's detail page). |
+| `run_id` | Optional; if omitted, a new run is created for each workflow execution. |
+| `workflow_name` / `workflow_tag` / `workflow_system` | Metadata identifying this workflow and version in NGS Tracker. |
+| `description` / `tags` | Free-text description and tags attached to the run. |
+| `files` | Output files to attach to the run once it finishes. Glob patterns (e.g. `results/plots/*/*.pdf`) are supported. Each entry needs a `path` and `type` (`config`, `sample_info`, `qc`, `results`, `mapping_rates`, `snakemake_log`, or `other`), plus an optional `description`. |
+
+Registration happens automatically from the workflow's `onsuccess`/`onerror` hooks: on success the run is marked complete with the listed files attached; on failure it's marked failed and the Snakemake log is attached instead. If the `ngs_tracker` Python package isn't installed, registration is silently skipped (a warning is logged rather than failing the workflow), so this feature is inert until you install and configure it.
