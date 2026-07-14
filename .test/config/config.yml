@@ -9,6 +9,10 @@ salmon-index:
 deseq2:
   # custom model for DESeq2
   design: ""
+  # level(s) at which to perform differential expression analysis
+  # each entry produces its own set of outputs (results/deseq2/<level>/...), so
+  # both can be run side by side without overwriting one another
+  levels: ["gene", "transcript"]
 resources: # computing resources
   trim:
     cpu: 8

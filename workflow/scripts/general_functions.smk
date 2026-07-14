@@ -10,9 +10,13 @@ def targets():
     targets = [
         "results/qc/multiqc/multiqc.html",
         "results/plots/mapping_rates.pdf",
-        "results/plots/pca.pdf",
-        "results/plots/sample_distance.pdf",
-        expand("results/plots/volcano/{comparison}.pdf", comparison=COMPARISONS),
+        expand("results/plots/{level}/pca.pdf", level=LEVELS),
+        expand("results/plots/{level}/sample_distance.pdf", level=LEVELS),
+        expand(
+            "results/plots/volcano/{level}/{comparison}.pdf",
+            level=LEVELS,
+            comparison=COMPARISONS,
+        ),
     ]
     return targets
 

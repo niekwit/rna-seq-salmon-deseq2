@@ -10,9 +10,18 @@ library(cowplot)
 # Get plotting paramaters
 fdr <- -log10(snakemake@params[["fdr"]])
 fc <- snakemake@params[["fc"]]
+level <- snakemake@wildcards[["level"]] # "gene" or "transcript"
 
 # Load data for contrast
 df <- read.csv(snakemake@input[["csv"]])
+
+# Multiple transcripts share the same gene name, so label transcript-level
+# points with the transcript id alongside the gene name to keep them distinct
+if (level == "transcript") {
+  df$label <- paste0(df$external_gene_name, " (", df$ensembl_transcript_id, ")")
+} else {
+  df$label <- df$external_gene_name
+}
 
 # Get contrast name
 contrast <- unique(df$contrast_name)
@@ -84,7 +93,7 @@ p <- ggplot(df, aes(x = `log2FoldChange`, y = `log.padj`)) +
   ggtitle(contrast) +
   geom_label_repel(
     size = 5,
-    aes(x = `log2FoldChange`, y = `log.padj`, label = external_gene_name),
+    aes(x = `log2FoldChange`, y = `log.padj`, label = label),
     data = df.label,
     nudge_x = -0.125,
     nudge_y = 0.05

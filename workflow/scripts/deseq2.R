@@ -20,6 +20,14 @@ samples <- read.csv("config/samples.csv", header = TRUE)
 genotypes <- unique(samples$genotype)
 treatments <- unique(samples$treatment)
 design <- snakemake@params[["design"]]
+level <- snakemake@wildcards[["level"]] # "gene" or "transcript"
+
+# Name of the feature id column, and its counterpart used for annotation joins
+id_col <- if (level == "transcript") {
+  "ensembl_transcript_id"
+} else {
+  "ensembl_gene_id"
+}
 
 if (length(genotypes) > 1 & length(treatments) > 1) {
   samples$comb <- paste0(samples$genotype, "_", samples$treatment)
@@ -58,8 +66,20 @@ gene.info <- data.frame(
 ) %>%
   filter(!duplicated(ensembl_gene_id))
 
+# Transcript annotation info (transcript -> gene -> gene name),
+# used to annotate results with gene names when level is "transcript"
+tx2gene.info <- tx2gene %>%
+  dplyr::rename(ensembl_transcript_id = TXNAME, ensembl_gene_id = GENEID) %>%
+  left_join(gene.info, by = "ensembl_gene_id")
+
 # Read Salmon quant.sf files
-txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+# txOut = TRUE keeps counts at transcript level instead of summarising to genes
+txi <- tximport(
+  files,
+  type = "salmon",
+  tx2gene = tx2gene,
+  txOut = level == "transcript"
+)
 
 # Create DESeqDataSet
 if (str_length(design) == 0) {
@@ -135,20 +155,27 @@ for (r in seq_along(references)) {
 
     res <- results(dds_relevel, name = comparisons[[c]])
     df <- as.data.frame(res) %>%
-      mutate(ensembl_gene_id = res@rownames, .before = 1)
+      mutate(!!id_col := res@rownames, .before = 1)
 
     # Annotate df
-    #df$ensembl_gene_id <- gsub("\\.[0-9]*","",df$ensembl_gene_id) # Tidy up gene IDs
-    df <- left_join(df, gene.info, by = "ensembl_gene_id") %>%
-      relocate(external_gene_name, .after = ensembl_gene_id)
+    if (level == "transcript") {
+      df <- left_join(df, tx2gene.info, by = "ensembl_transcript_id") %>%
+        relocate(
+          ensembl_gene_id,
+          external_gene_name,
+          .after = ensembl_transcript_id
+        )
+    } else {
+      df <- left_join(df, gene.info, by = "ensembl_gene_id") %>%
+        relocate(external_gene_name, .after = ensembl_gene_id)
+    }
 
     # Remove genes with baseMean zero
     df <- df[df$baseMean != 0, ]
 
     # Add normalised read counts for each sample to df
     temp <- as.data.frame(counts(dds_relevel, normalized = TRUE))
-    temp$ensembl_gene_id <- row.names(temp)
-    #temp$ensembl_gene_id <- gsub("\\.[0-9]*", "", temp$ensembl_gene_id) # Tidy up gene IDs
+    temp[[id_col]] <- row.names(temp)
     names(temp)[
       1:length(dds_relevel@colData@listData$sample)
     ] <- dds_relevel@colData@listData$sample
@@ -157,16 +184,16 @@ for (r in seq_along(references)) {
     comparison_groups <- str_split(comparison, "_vs_")[[1]]
     temp <- temp %>%
       dplyr::select(
-        ensembl_gene_id,
+        all_of(id_col),
         all_of(samples[samples$comb %in% comparison_groups, ]$sample)
       )
 
-    df <- left_join(df, temp, by = "ensembl_gene_id")
+    df <- left_join(df, temp, by = id_col)
 
     # Order data for padj
     df <- df[order(df$padj), ]
 
-    # Change column with contrast name and change it to a number (counter) if too long
+    # Move contrast to first column in df
     df <- df %>%
       mutate(contrast_name = comparison, .before = 1)
 
@@ -183,5 +210,8 @@ names(resList) <- names
 
 # Write each df to separate csv file
 for (i in seq(resList)) {
-  write_csv(resList[[i]], paste0("results/deseq2/", names(resList)[i], ".csv"))
+  write_csv(
+    resList[[i]],
+    paste0("results/deseq2/", level, "/", names(resList)[i], ".csv")
+  )
 }

@@ -52,6 +52,10 @@ salmon-index:
 deseq2:
   # custom model for DESeq2
   design: ""
+  # level(s) at which to perform differential expression analysis
+  # each entry produces its own set of outputs (results/deseq2/<level>/...), so
+  # both can be run side by side without overwriting one another
+  levels: ["gene", "transcript"]
 resources: # computing resources
   trim:
     cpu: 8
@@ -70,7 +74,7 @@ resources: # computing resources
     time: 20
 ```
 
-`genome`/`gencode_genome_build` select which Ensembl/Gencode reference is downloaded automatically; `deseq2.design` can be left empty to use the default `~comb` (or `~batch + comb`, if a `batch` column is present) design, or set to a custom R formula referencing the `samples.csv` columns.
+`genome`/`gencode_genome_build` select which Ensembl/Gencode reference is downloaded automatically; `deseq2.design` can be left empty to use the default `~comb` (or `~batch + comb`, if a `batch` column is present) design, or set to a custom R formula referencing the `samples.csv` columns. `deseq2.levels` controls whether differential expression is run at the gene level, the transcript level, or both — set it to `["gene"]`, `["transcript"]`, or `["gene", "transcript"]`.
 
 ### Running the workflow
 
@@ -108,6 +112,6 @@ Results are written to `results/`, notably:
 
 - `results/qc/multiqc/multiqc.html` – aggregated QC report
 - `results/salmon/{sample}/quant.sf` – per-sample Salmon quantifications
-- `results/deseq2/{comparison}.csv` – DESeq2 results per pairwise comparison
-- `results/plots/pca.pdf`, `results/plots/sample_distance.pdf`, `results/plots/mapping_rates.pdf`
-- `results/plots/volcano/{comparison}.pdf` – volcano plot per comparison
+- `results/deseq2/{level}/{comparison}.csv` – DESeq2 results per pairwise comparison, for each configured `level` (`gene` and/or `transcript`)
+- `results/plots/{level}/pca.pdf`, `results/plots/{level}/sample_distance.pdf`, `results/plots/mapping_rates.pdf`
+- `results/plots/volcano/{level}/{comparison}.pdf` – volcano plot per comparison

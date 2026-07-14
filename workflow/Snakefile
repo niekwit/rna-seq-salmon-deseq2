@@ -33,6 +33,7 @@ resources = Resources(config["genome"], config["gencode_genome_build"])
 # Get wildcard values
 SAMPLES = samples()
 COMPARISONS = comparisons()
+LEVELS = config["deseq2"]["levels"]
 
 # Import rules
 include: "rules/fastqc.smk"

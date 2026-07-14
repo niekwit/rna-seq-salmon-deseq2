@@ -28,16 +28,17 @@ properties:
   deseq2:
     type: object
     properties:
-      model:
+      design:
         type: string
         description: custom model for DESeq2
-
-  required:
-    - genome
-    - gencode_genome_build
-    - fdr_cutoff
-    - fc_cutoff
-    - deseq2
+      levels:
+        type: array
+        items:
+          type: string
+          enum: ["gene", "transcript"]
+        minItems: 1
+        uniqueItems: true
+        description: Level(s) at which to perform differential expression analysis
 
   resources:
     type: object
@@ -88,9 +89,16 @@ properties:
             type: integer
             minimum: 10
 
-      required:
-        - trim
-        - fastqc
-        - mapping
-        - deseq2
-        - plotting
+    required:
+      - trim
+      - fastqc
+      - mapping
+      - deseq2
+      - plotting
+
+required:
+  - genome
+  - gencode_genome_build
+  - fdr_cutoff
+  - fc_cutoff
+  - deseq2
