@@ -5,7 +5,7 @@ report: "report/workflow.rst"
 
 
 # Workflow version
-VERSION = "v0.7.4"
+VERSION = "v0.7.5"
 
 # Set minimum snakemake version
 min_version("8.25.5")
@@ -34,6 +34,7 @@ resources = Resources(config["genome"], config["gencode_genome_build"])
 SAMPLES = samples()
 COMPARISONS = comparisons()
 LEVELS = config["deseq2"]["levels"]
+
 
 # Import rules
 include: "rules/fastqc.smk"
@@ -66,9 +67,25 @@ os.makedirs("logs/snakemake", exist_ok=True)
 
 onsuccess:
     shell("cp -v {log} {snake_log}")
-    print("Analysis finished successfully!")
+    logger.info("Analysis finished successfully!")
+    try:
+        from ngs_tracker import register_run
+
+        register_run(config)
+    except ImportError:
+        pass
+    except Exception as exc:
+        logger.warning(f"NGS Tracker registration skipped: {exc}")
 
 
 onerror:
     shell("cp -v {log} {snake_log}")
-    print(f"Analysis failed...\nCheck {snake_log} for details")
+    logger.info(f"Analysis failed...\nCheck {snake_log} for details")
+    try:
+        from ngs_tracker import register_run
+
+        register_run(config, status="failed", log_file=log)
+    except ImportError:
+        pass
+    except Exception as exc:
+        logger.warning(f"NGS Tracker registration skipped: {exc}")
