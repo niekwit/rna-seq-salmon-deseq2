@@ -10,6 +10,7 @@ def targets():
     targets = [
         "results/qc/multiqc/multiqc.html",
         "results/plots/mapping_rates.pdf",
+        "results/plots/mapping_rates.csv",
         expand("results/plots/{level}/pca.pdf", level=LEVELS),
         expand("results/plots/{level}/sample_distance.pdf", level=LEVELS),
         expand(
@@ -66,11 +67,7 @@ def comparisons():
         )
 
         # Get all conditions
-        all_conditions = (
-            sample_info["condition"]
-            .unique()
-            .tolist()
-        )
+        all_conditions = sample_info["condition"].unique().tolist()
     elif (
         len(sample_info["genotype"].unique()) > 1
         and len(sample_info["treatment"].unique()) == 1
