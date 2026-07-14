@@ -2,7 +2,6 @@ name: deseq2
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python=3.11
   - multiqc=1.26

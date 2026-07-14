@@ -1,8 +1,7 @@
 name: deseq2
-channels: 
+channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - jq
   - r-base=4.4
