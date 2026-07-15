@@ -17,7 +17,7 @@ names(df) <- c("sample", "mapping_rate")
 counter <- 1
 for (x in files) {
   # get sample name from log
-  sample <- dirname(basename(x))
+  sample <- basename(dirname(x))
 
   # get mapping rate from log
   rate <- system(
