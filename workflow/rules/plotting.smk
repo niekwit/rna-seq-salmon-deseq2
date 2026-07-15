@@ -1,6 +1,6 @@
 rule mapping_rates_plot:
     input:
-        expand("logs/salmon/quant-{sample}.log", sample=SAMPLES),
+        expand("results/salmon/{sample}/logs/salmon_quant.log", sample=SAMPLES),
     output:
         report(
             "results/plots/mapping_rates.pdf",

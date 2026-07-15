@@ -46,7 +46,7 @@ rule salmon_decoy:
     log:
         "logs/salmon/decoys.log",
     wrapper:
-        "v5.9.0/bio/salmon/decoys"
+        "v6.0.0/bio/salmon/decoys"
 
 
 rule salmon_index:
@@ -54,26 +54,21 @@ rule salmon_index:
         sequences="resources/gentrome.fasta",
         decoys="resources/decoys.txt",
     output:
-        temp(
-            multiext(
-                f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
-                "complete_ref_lens.bin",
-                "ctable.bin",
-                "ctg_offsets.bin",
-                "duplicate_clusters.tsv",
-                "info.json",
-                "mphf.bin",
-                "pos.bin",
-                "pre_indexing.log",
-                "rank.bin",
-                "refAccumLengths.bin",
-                "ref_indexing.log",
-                "reflengths.bin",
-                "refseq.bin",
-                "seq.bin",
-                "versionInfo.json",
-            )
+        multiext(
+            f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
+            "index.ssi",
+            "refseq_offsets.json",
+            "index.ectab",
+            "index.ctab",
+            "refseq.bin",
+            "index.ssi.mphf",
+            "index.refinfo",
+            "info.json",
+            "duplicate_clusters.tsv",
+            "index.tct",
+            "index.tdct",
         ),
+    cache: True
     log:
         "logs/salmon/index.log",
     threads: config["resources"]["mapping"]["cpu"] * 3
@@ -83,4 +78,4 @@ rule salmon_index:
         # optional parameters
         extra=config["salmon-index"]["extra_params"],
     wrapper:
-        "v5.9.0/bio/salmon/index"
+        "v9.12.0/bio/salmon/index"

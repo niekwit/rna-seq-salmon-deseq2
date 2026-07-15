@@ -4,25 +4,22 @@ rule salmon_quant:
         r2="results/trimmed/{sample}_R2.fq.gz",
         index=multiext(
             f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
-            "complete_ref_lens.bin",
-            "ctable.bin",
-            "ctg_offsets.bin",
-            "duplicate_clusters.tsv",
-            "info.json",
-            "mphf.bin",
-            "pos.bin",
-            "pre_indexing.log",
-            "rank.bin",
-            "refAccumLengths.bin",
-            "ref_indexing.log",
-            "reflengths.bin",
+            "index.ssi",
+            "refseq_offsets.json",
+            "index.ectab",
+            "index.ctab",
             "refseq.bin",
-            "seq.bin",
-            "versionInfo.json",
+            "index.ssi.mphf",
+            "index.refinfo",
+            "info.json",
+            "duplicate_clusters.tsv",
+            "index.tct",
+            "index.tdct",
         ),
     output:
         quant="results/salmon/{sample}/quant.sf",
         lib="results/salmon/{sample}/lib_format_counts.json",
+        log="results/salmon/{sample}/logs/salmon_quant.log",
     log:
         "logs/salmon/quant-{sample}.log",
     params:
@@ -33,4 +30,4 @@ rule salmon_quant:
     resources:
         runtime=config["resources"]["mapping"]["time"],
     wrapper:
-        "v5.9.0/bio/salmon/quant"
+        "v9.13.0/bio/salmon/quant"
