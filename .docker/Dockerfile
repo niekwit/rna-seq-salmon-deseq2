@@ -1,6 +1,6 @@
 FROM condaforge/miniforge3:latest
 LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="4eef9c461c16964d62f55b04df709b61f90bfbdc1cf746927bbe39d963f8df93"
+LABEL io.github.snakemake.conda_env_hash="4bcecb791f6d5a20d907b68406dcd84eb3e2ff63739d49e738e23960ebce62c8"
 
 # Step 2: Retrieve conda environments
 
@@ -16,18 +16,6 @@ LABEL io.github.snakemake.conda_env_hash="4eef9c461c16964d62f55b04df709b61f90bfb
 #     - snakemake-wrapper-utils =0.6.2
 RUN mkdir -p /conda-envs/24b8923f8e4abe077ffe95b01bfc1652
 ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.9.0/bio/fastqc/environment.yaml /conda-envs/24b8923f8e4abe077ffe95b01bfc1652/environment.yaml
-
-# Conda environment:
-#   source: https://github.com/snakemake/snakemake-wrappers/raw/v5.9.0/bio/trim_galore/pe/environment.yaml
-#   prefix: /conda-envs/975a4a78cc02737b050b54b2645b9ecc
-#   channels:
-#     - conda-forge
-#     - bioconda
-#     - nodefaults
-#   dependencies:
-#     - trim-galore =0.6.10
-RUN mkdir -p /conda-envs/975a4a78cc02737b050b54b2645b9ecc
-ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.9.0/bio/trim_galore/pe/environment.yaml /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml
 
 # Conda environment:
 #   source: https://github.com/snakemake/snakemake-wrappers/raw/v6.0.0/bio/salmon/decoys/environment.yaml
@@ -107,13 +95,29 @@ COPY workflow/envs/deseq2.yml /conda-envs/d9413308a4a8608d70128afdc7ad9857/envir
 RUN mkdir -p /conda-envs/6710eb064b2497f0643f566f521a2825
 COPY workflow/envs/resources.yml /conda-envs/6710eb064b2497f0643f566f521a2825/environment.yaml
 
+# Conda environment:
+#   source: workflow/envs/trim_galore.yml
+#   prefix: /conda-envs/f25143b31d35300a2e0f8a6febf76392
+#   name: trim_galore
+#   channels:
+#     - conda-forge
+#     - bioconda
+#     - defaults
+#   dependencies:
+#     # Pinned to this exact build: build h9ee0642_0 was linked against a newer
+#     # glibc than older hosts (e.g. Ubuntu 20.04, glibc 2.31) provide, causing
+#     # `GLIBC_2.32/2.33/2.34 not found` errors. hf1b6044_1 fixes this (glibc <=2.16).
+#     - trim-galore=2.2.0=hf1b6044_1
+RUN mkdir -p /conda-envs/f25143b31d35300a2e0f8a6febf76392
+COPY workflow/envs/trim_galore.yml /conda-envs/f25143b31d35300a2e0f8a6febf76392/environment.yaml
+
 # Step 3: Generate conda environments
 
 RUN conda env create --prefix /conda-envs/24b8923f8e4abe077ffe95b01bfc1652 --file /conda-envs/24b8923f8e4abe077ffe95b01bfc1652/environment.yaml && \
-    conda env create --prefix /conda-envs/975a4a78cc02737b050b54b2645b9ecc --file /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml && \
     conda env create --prefix /conda-envs/847d07fb3c14fbb073983231e38653b8 --file /conda-envs/847d07fb3c14fbb073983231e38653b8/environment.yaml && \
     conda env create --prefix /conda-envs/04c2e78821241656fde467b5d62a26bd --file /conda-envs/04c2e78821241656fde467b5d62a26bd/environment.yaml && \
     conda env create --prefix /conda-envs/0215b3c4a253ad28850dd0a9729a5bbf --file /conda-envs/0215b3c4a253ad28850dd0a9729a5bbf/environment.yaml && \
     conda env create --prefix /conda-envs/d9413308a4a8608d70128afdc7ad9857 --file /conda-envs/d9413308a4a8608d70128afdc7ad9857/environment.yaml && \
     conda env create --prefix /conda-envs/6710eb064b2497f0643f566f521a2825 --file /conda-envs/6710eb064b2497f0643f566f521a2825/environment.yaml && \
+    conda env create --prefix /conda-envs/f25143b31d35300a2e0f8a6febf76392 --file /conda-envs/f25143b31d35300a2e0f8a6febf76392/environment.yaml && \
     conda clean --all -y

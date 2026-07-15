@@ -13,5 +13,7 @@ rule trim_galore_pe:
         extra="--illumina -q 20",
     log:
         "logs/trim_galore/{sample}.log",
+    conda:
+        "../envs/trim_galore.yml"
     wrapper:
-        "v5.9.0/bio/trim_galore/pe"
+        "v9.9.0/bio/trim_galore/pe"
