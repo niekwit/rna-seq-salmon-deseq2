@@ -68,7 +68,6 @@ rule salmon_index:
             "index.tct",
             "index.tdct",
         ),
-    cache: True
     log:
         "logs/salmon/index.log",
     threads: config["resources"]["mapping"]["cpu"] * 3
