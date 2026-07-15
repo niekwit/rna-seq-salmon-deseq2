@@ -3,7 +3,7 @@ rule salmon_quant:
         r1="results/trimmed/{sample}_R1.fq.gz",
         r2="results/trimmed/{sample}_R2.fq.gz",
         index=multiext(
-            f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
+            f"resources/{resources.genome}_{resources.build}_gentrome_index/",
             "index.ssi",
             "refseq_offsets.json",
             "index.ectab",

@@ -55,7 +55,7 @@ rule salmon_index:
         decoys="resources/decoys.txt",
     output:
         multiext(
-            f"resources/{resources.genome}_{resources.build}_transcriptome_index/",
+            f"resources/{resources.genome}_{resources.build}_gentrome_index/",
             "index.ssi",
             "refseq_offsets.json",
             "index.ectab",
