@@ -13,8 +13,6 @@ rule salmon_quant:
             "index.refinfo",
             "info.json",
             "duplicate_clusters.tsv",
-            "index.tct",
-            "index.tdct",
         ),
     output:
         quant="results/salmon/{sample}/quant.sf",

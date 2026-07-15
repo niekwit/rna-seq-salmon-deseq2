@@ -5,7 +5,7 @@ report: "report/workflow.rst"
 
 
 # Workflow version
-VERSION = "v0.8.0"
+VERSION = "v0.8.1"
 
 # Set minimum snakemake version
 min_version("8.25.5")
