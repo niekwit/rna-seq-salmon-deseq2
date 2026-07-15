@@ -15,7 +15,7 @@ deseq2:
   levels: ["gene", "transcript"]
 resources: # computing resources
   trim:
-    cpu: 8
+    cpu: 4
     time: 60
   fastqc:
     cpu: 4
