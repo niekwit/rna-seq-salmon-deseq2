@@ -6,7 +6,11 @@
 
 A Snakemake workflow for wicked-fast paired-end RNA-seq analysis with Salmon and DESeq2.
 
-If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository and its DOI (see above).
+## Citation
+
+If you use this workflow in a paper, don't forget to give credits to the authors by citing as follows:
+
+> Pauzaite, T., Wit, N., Seear, R.V. et al. Deubiquitinating enzyme mutagenesis screens identify a USP43-dependent HIF-1 transcriptional response. EMBO J 43, 3677–3709 (2024). https://doi.org/10.1038/s44318-024-00166-6
 
 ## Software dependencies
 
@@ -155,14 +159,14 @@ ngs_tracker:
       type: snakemake_log
 ```
 
-| Field | Description |
-| --- | --- |
-| `enabled` | Set to `false` to skip NGS Tracker entirely — nothing is registered and no network call is made. |
-| `base_url` | URL of your NGS Tracker API instance. |
-| `project_id` | ID of the NGS Tracker project to register the run under (shown on the project's detail page). |
-| `run_id` | Optional; if omitted, a new run is created for each workflow execution. |
-| `workflow_name` / `workflow_tag` / `workflow_system` | Metadata identifying this workflow and version in NGS Tracker. |
-| `description` / `tags` | Free-text description and tags attached to the run. |
-| `files` | Output files to attach to the run once it finishes. Glob patterns (e.g. `results/plots/*/*.pdf`) are supported. Each entry needs a `path` and `type` (`config`, `sample_info`, `qc`, `results`, `mapping_rates`, `snakemake_log`, or `other`), plus an optional `description`. |
+| Field                                                | Description                                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`                                            | Set to `false` to skip NGS Tracker entirely — nothing is registered and no network call is made.                                                                                                                                                                               |
+| `base_url`                                           | URL of your NGS Tracker API instance.                                                                                                                                                                                                                                          |
+| `project_id`                                         | ID of the NGS Tracker project to register the run under (shown on the project's detail page).                                                                                                                                                                                  |
+| `run_id`                                             | Optional; if omitted, a new run is created for each workflow execution.                                                                                                                                                                                                        |
+| `workflow_name` / `workflow_tag` / `workflow_system` | Metadata identifying this workflow and version in NGS Tracker.                                                                                                                                                                                                                 |
+| `description` / `tags`                               | Free-text description and tags attached to the run.                                                                                                                                                                                                                            |
+| `files`                                              | Output files to attach to the run once it finishes. Glob patterns (e.g. `results/plots/*/*.pdf`) are supported. Each entry needs a `path` and `type` (`config`, `sample_info`, `qc`, `results`, `mapping_rates`, `snakemake_log`, or `other`), plus an optional `description`. |
 
 Registration happens automatically from the workflow's `onsuccess`/`onerror` hooks: on success the run is marked complete with the listed files attached; on failure it's marked failed and the Snakemake log is attached instead. If the `ngs_tracker` Python package isn't installed, registration is silently skipped (a warning is logged rather than failing the workflow), so this feature is inert until you install and configure it.
