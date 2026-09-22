@@ -1,6 +1,6 @@
 rule get_genome_fasta:
     output:
-        temp(resources.fasta),
+        resources.fasta,
     retries: 3
     params:
         url=resources.fa_url,
@@ -17,7 +17,7 @@ rule get_genome_fasta:
 
 use rule get_genome_fasta as get_trx_fasta with:
     output:
-        temp(resources.trx_fasta),
+        resources.trx_fasta,
     params:
         url=resources.trx_fa_url,
     log:
@@ -26,7 +26,7 @@ use rule get_genome_fasta as get_trx_fasta with:
 
 use rule get_genome_fasta as get_gtf with:
     output:
-        temp(resources.gtf),
+        resources.gtf,
     params:
         url=resources.gtf_url,
     log:
@@ -38,7 +38,7 @@ rule salmon_decoy:
         transcriptome=resources.trx_fasta,
         genome=resources.fasta,
     output:
-        gentrome=temp("resources/gentrome.fasta"),
+        gentrome="resources/gentrome.fasta",
         decoys="resources/decoys.txt",
     threads: config["resources"]["mapping"]["cpu"]
     resources:
