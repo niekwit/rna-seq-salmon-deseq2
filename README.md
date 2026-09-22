@@ -4,7 +4,7 @@
 [![Tests](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10139567.svg)](https://doi.org/10.5281/zenodo.10139567)
 
-A Snakemake workflow for wicked-fast paired-end RNA-seq analysis with Salmon and DESeq2.
+A Snakemake workflow for wicked-fast paired-end and single-end RNA-seq analysis with Salmon and DESeq2.
 
 ## Citation
 
@@ -24,7 +24,15 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 Create a main analysis directory with the subdirectories config/, reads/, and workflow/.
 
-Place all your paired-end fastq files files in the reads folder. These should have the extensions \_R1_001.fastq.gz/\_R2_001.fastq.gz for read 1 and read2, respectively.
+Place all your fastq files in the reads folder. Each sample is automatically detected as paired-end or single-end based on its file name:
+
+- Paired-end: `_R1_001.fastq.gz`/`_R2_001.fastq.gz` for read 1 and read 2, respectively (e.g. `Control_1_R1_001.fastq.gz` and `Control_1_R2_001.fastq.gz`).
+- Single-end: `.fastq.gz` (e.g. `Control_1.fastq.gz`).
+
+Paired-end and single-end samples can be freely mixed within the same run.
+
+> [!WARNING]
+> Single-end 3′ tag-seq data (e.g. Plasmidsaurus RNA-seq, based on Lexogen QuantSeq) contains UMIs, which are used to identify and remove PCR duplicate reads. This workflow's Salmon quantification does **not** perform UMI-based deduplication — counts for these samples will include PCR duplicates, which can inflate expression estimates. If accurate quantification is required, deduplicate reads (e.g. with `umi_tools`) against a genome alignment before using an alternative counting method, or otherwise assess how much this affects your results before trusting them as-is.
 
 The config/ directory should contain two files: config.yml and samples.csv.
 
@@ -38,7 +46,7 @@ Meta information of the samples are described in samples.csv:
 | Control_Hypoxia_2 | WT       | Hypoxia   | no        | 1     |
 
 > [!IMPORTANT]
-> The sample names should correspond to the files name, eg. Control_1_R1_001.fastq.gz and Control_1_R2_001.fastq.gz for sample Control_1.
+> The sample names should correspond to the file names, e.g. Control_1_R1_001.fastq.gz and Control_1_R2_001.fastq.gz (paired-end) or Control_1.fastq.gz (single-end) for sample Control_1.
 
 The `batch` column is optional; if omitted, all samples are treated as a single batch. At least one sample per genotype/treatment group being compared must have `reference` set to `yes` — this defines the control/reference level(s) used to build the pairwise comparisons for DESeq2 and the volcano plots.
 

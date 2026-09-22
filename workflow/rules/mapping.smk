@@ -1,19 +1,6 @@
 rule salmon_quant:
     input:
-        r1="results/trimmed/{sample}_R1.fq.gz",
-        r2="results/trimmed/{sample}_R2.fq.gz",
-        index=multiext(
-            f"resources/{resources.genome}_{resources.build}_gentrome_index/",
-            "index.ssi",
-            "refseq_offsets.json",
-            "index.ectab",
-            "index.ctab",
-            "refseq.bin",
-            "index.ssi.mphf",
-            "index.refinfo",
-            "info.json",
-            "duplicate_clusters.tsv",
-        ),
+        unpack(salmon_quant_input),
     output:
         quant="results/salmon/{sample}/quant.sf",
         lib="results/salmon/{sample}/lib_format_counts.json",

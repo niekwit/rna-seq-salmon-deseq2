@@ -17,3 +17,22 @@ rule trim_galore_pe:
         "../envs/trim_galore.yml"
     wrapper:
         "v9.9.0/bio/trim_galore/pe"
+
+
+rule trim_galore_se:
+    input:
+        "reads/{sample}.fastq.gz",
+    output:
+        fasta=temp("results/trimmed/{sample}_SE.fq.gz"),
+        report="logs/trim_galore/{sample}_SE_trimming_report.txt",
+    threads: config["resources"]["trim"]["cpu"]
+    resources:
+        runtime=config["resources"]["trim"]["time"],
+    params:
+        extra="--illumina -q 20",
+    log:
+        "logs/trim_galore/{sample}.log",
+    conda:
+        "../envs/trim_galore.yml"
+    wrapper:
+        "v9.9.0/bio/trim_galore/se"

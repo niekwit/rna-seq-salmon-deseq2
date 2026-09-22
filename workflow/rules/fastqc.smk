@@ -18,11 +18,7 @@ rule fastqc:
 
 rule multiqc:
     input:
-        expand(
-            "results/qc/fastqc/{sample}_{end}_fastqc.zip",
-            sample=SAMPLES,
-            end=["R1", "R2"],
-        ),
+        trimmed_fastqc_targets(),
     output:
         "results/qc/multiqc/multiqc.html",
     params:
