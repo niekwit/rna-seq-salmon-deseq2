@@ -30,7 +30,8 @@ def samples():
     read file naming convention:
       - PE: reads/{sample}_R1_001.fastq.gz + reads/{sample}_R2_001.fastq.gz
       - SE: reads/{sample}.fastq.gz
-    Detected end types are stored in the global END_TYPE dict (sample -> "pe"/"se").
+    Detected end types are stored in the global END_TYPE dict, mapping each
+    sample name to either "pe" or "se".
     """
     csv = pd.read_csv("config/samples.csv")
     SAMPLES = csv["sample"]
