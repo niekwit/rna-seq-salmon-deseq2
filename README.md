@@ -2,7 +2,7 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥8.25.5-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/rna-seq-salmon-deseq2/actions/workflows/main.yml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10139567.svg)](https://doi.org/10.5281/zenodo.10139567)
+[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.10139567.svg)](https://doi.org/10.5281/zenodo.10139567)
 
 A Snakemake workflow for wicked-fast paired-end and single-end RNA-seq analysis with Salmon and DESeq2.
 
