@@ -1,4 +1,7 @@
 import os
+import re
+import urllib.error
+import urllib.request
 
 
 class Resources:
@@ -11,94 +14,28 @@ class Resources:
         self.genome = genome
         self.build = str(build)
 
-        human_assembly_version = {
-            49: "p14",
-            48: "p14",
-            47: "p14",
-            46: "p14",
-            45: "p14",
-            44: "p14",
-            43: "p13",
-            42: "p13",
-            41: "p13",
-            40: "p13",
-            39: "p13",
-            38: "p13",
-            37: "p13",
-            36: "p13",
-            35: "p13",
-            34: "p13",
-            33: "p13",
-            32: "p13",
-            31: "p12",
-            30: "p12",
-            29: "p12",
-            28: "p12",
-            27: "p10",
-            26: "p10",
-            25: "p7",
-        }
-
-        mouse_assembly_version = {
-            "M38": "GRCm39",
-            "M37": "GRCm39",
-            "M36": "GRCm39",
-            "M35": "GRCm39",
-            "M34": "GRCm39",
-            "M33": "GRCm39",
-            "M32": "GRCm39",
-            "M31": "GRCm39",
-            "M30": "GRCm39",
-            "M29": "GRCm39",
-            "M28": "GRCm39",
-            "M27": "GRCm39",
-            "M26": "GRCm39",
-            "M25": "GRCm39.p6",
-            "M24": "GRCm39.p6",
-            "M23": "GRCm39.p6",
-            "M22": "GRCm39.p6",
-            "M21": "GRCm39.p6",
-            "M20": "GRCm39.p6",
-            "M19": "GRCm39.p6",
-            "M18": "GRCm39.p6",
-            "M17": "GRCm39.p6",
-            "M16": "GRCm39.p5",
-            "M15": "GRCm39.p5",
-            "M14": "GRCm39.p5",
-            "M13": "GRCm39.p5",
-            "M12": "GRCm39.p5",
-        }
-
         # base URL
         base_url_gencode = "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_"
 
         if genome.lower() == "human":
-            # create URLs for genome files
-            try:
-                av = human_assembly_version[build]
-            except KeyError:
-                raise ValueError(
-                    f"Invalid Gencode build number {build} for human genome. Please select a valid build number from {human_assembly_version.keys()}."
-                )
-
-            self.fa_url = (
-                f"{base_url_gencode}human/release_{build}/GRCh38.{av}.genome.fa.gz"
+            release_url = f"{base_url_gencode}human/release_{build}/"
+            genome_filename = self._genome_fasta_filename(
+                release_url, "GRCh", build, "human"
             )
-            self.trx_fa_url = f"{base_url_gencode}human/release_{build}/gencode.v{build}.transcripts.fa.gz"
-            self.gtf_url = f"{base_url_gencode}human/release_{build}/gencode.v{build}.annotation.gtf.gz"
+
+            self.fa_url = f"{release_url}{genome_filename}"
+            self.trx_fa_url = f"{release_url}gencode.v{build}.transcripts.fa.gz"
+            self.gtf_url = f"{release_url}gencode.v{build}.annotation.gtf.gz"
 
         elif genome.lower() == "mouse":
-            # create URLs for genome files
-            try:
-                av = mouse_assembly_version[build]
-            except KeyError:
-                raise ValueError(
-                    f"Invalid Gencode build number {build} for mouse genome. Please select a valid build number from {mouse_assembly_version.keys()}."
-                )
+            release_url = f"{base_url_gencode}mouse/release_{build}/"
+            genome_filename = self._genome_fasta_filename(
+                release_url, "GRCm", build, "mouse"
+            )
 
-            self.fa_url = f"{base_url_gencode}mouse/release_{build}/{av}.genome.fa.gz"
-            self.trx_fa_url = f"{base_url_gencode}mouse/release_{build}/gencode.v{build}.transcripts.fa.gz"
-            self.gtf_url = f"{base_url_gencode}mouse/release_{build}/gencode.v{build}.annotation.gtf.gz"
+            self.fa_url = f"{release_url}{genome_filename}"
+            self.trx_fa_url = f"{release_url}gencode.v{build}.transcripts.fa.gz"
+            self.gtf_url = f"{release_url}gencode.v{build}.annotation.gtf.gz"
 
         elif genome == "test":
             # Download very small fasta files from Github repository
@@ -114,6 +51,48 @@ class Resources:
         self.fasta = self._file_from_url(self.fa_url)
         self.trx_fasta = self._file_from_url(self.trx_fa_url)
         self.gtf = self._file_from_url(self.gtf_url)
+
+    @staticmethod
+    def _genome_fasta_filename(release_url, assembly_prefix, build, species):
+        """
+        Determine the genome fasta filename for a Gencode release by listing
+        its FTP directory, instead of relying on a manually maintained
+        build -> assembly-patch-version mapping (which needs updating by hand
+        every time Gencode makes a new release).
+
+        The genome fasta filename itself encodes the assembly patch version,
+        e.g. GRCh38.p14.genome.fa.gz or GRCm39.genome.fa.gz.
+        """
+        try:
+            with urllib.request.urlopen(release_url, timeout=30) as response:
+                listing = response.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as e:
+            raise ValueError(
+                f"Could not find Gencode release {build} for {species} at {release_url} "
+                f"(HTTP error: {e}). Please check that 'gencode_genome_build' in "
+                "config.yml is a valid Gencode release number for this species."
+            ) from e
+        except urllib.error.URLError as e:
+            raise ValueError(
+                f"Could not reach the Gencode FTP server at {release_url} ({e.reason}). "
+                "Check your internet connection and try again."
+            ) from e
+
+        # Match e.g. "GRCh38.p14.genome.fa.gz" or "GRCm39.genome.fa.gz", but not
+        # the "*.primary_assembly.genome.fa.gz" variant also present in the listing.
+        pattern = re.compile(
+            rf'href="({re.escape(assembly_prefix)}\d+(?:\.p\d+)?\.genome\.fa\.gz)"'
+        )
+        match = pattern.search(listing)
+        if not match:
+            raise ValueError(
+                f"Could not determine the genome assembly version for Gencode release "
+                f"{build} ({species}) from {release_url}. Either the Gencode FTP page "
+                "layout has changed and this workflow needs updating, or "
+                "'gencode_genome_build' in config.yml is invalid."
+            )
+
+        return match.group(1)
 
     def _file_from_url(self, url):
         """Returns file path for unzipped downloaded file"""
